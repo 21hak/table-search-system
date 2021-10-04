@@ -1,6 +1,7 @@
 // printed-books/:book-id
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
+import ResultChart from "../components/ResultChart";
 
 export default function Result() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Result() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white h-screen p-3">
+    <div className="flex flex-col justify-start w-full bg-gray-100 h-full p-3">
       <div className="flex flex-col mb-2">
         <div className="flex items-start">
           <span className="font-normal w-28 block">Tables</span>
@@ -75,6 +76,7 @@ export default function Result() {
           })}
         />
       </form>
+      <ResultChart></ResultChart>
     </div>
   );
 }

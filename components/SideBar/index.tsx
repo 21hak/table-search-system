@@ -30,7 +30,10 @@ const SideBar: React.FC<ISideBarProps> = function SideBar(props) {
           onClick={onClick}
         />
       </div>
-      <div className={`h-full p-2 overflow-scroll ${isShow ? "" : "hidden"}`}>
+      <div
+        className={`h-full p-2 overflow-scroll pb-24 ${
+          isShow ? "" : "hidden"
+        }`}>
         {Object.entries(schemaData).map(([key, value]) => {
           return (
             <div key={key} className="pb-2">

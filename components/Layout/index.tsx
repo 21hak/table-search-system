@@ -66,7 +66,7 @@ const Layout: React.FC = function Layout(props) {
   }>(schemaDataTemp);
 
   return (
-    <main className="flex bg-white h-screen min-h-screen">
+    <main className="flex bg-white h-screen overflow-hidden">
       <SideBarContext.Provider
         value={{
           schemaData: schemaData,
