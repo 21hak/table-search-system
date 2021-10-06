@@ -1,5 +1,6 @@
 // printed-books/:book-id
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import ResultChart from "../components/ResultChart";
 

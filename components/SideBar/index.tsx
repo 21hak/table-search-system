@@ -6,12 +6,12 @@ import { SideBarContext } from "../Layout";
 interface ISideBarProps {}
 
 const SideBar: React.FC<ISideBarProps> = function SideBar(props) {
-  const { schemaData } = useContext(SideBarContext);
+  const { schema } = useContext(SideBarContext);
   const [isShow, setIsShow] = useState(true);
   const onClick = () => {
     setIsShow((isShow) => !isShow);
   };
-  // all 300ms ease-in-out 0s
+
   return (
     <div
       className={`overflow-hidden h-full bg-white border-r transition-all duration-300 ease-in-out ${
@@ -34,14 +34,14 @@ const SideBar: React.FC<ISideBarProps> = function SideBar(props) {
         className={`h-full p-2 overflow-scroll pb-24 ${
           isShow ? "" : "hidden"
         }`}>
-        {Object.entries(schemaData).map(([key, value]) => {
+        {Object.entries(schema).map(([key, value]) => {
           return (
             <div key={key} className="pb-2">
               <span className="block font-bold">{key}</span>
-              {value.map((column) => (
+              {value.map((data, index) => (
                 <div
-                  key={column}
-                  className="pt-1 font-light">{`┗ ${column}`}</div>
+                  key={index}
+                  className="pt-1 font-light">{`┗ ${data.column_name}`}</div>
               ))}
             </div>
           );
