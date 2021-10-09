@@ -1,20 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import tablePath from "../../public/table.png";
 import pieChartPath from "../../public/pie-chart.png";
 import barChartPath from "../../public/bar-chart.png";
+import { IResultData } from "../../pages/result";
+import ResultTable from "../ResultTable";
 
-interface IResultChartProps {}
+interface IResultChartProps {
+  data: IResultData;
+}
 const ResultChart: React.FC<IResultChartProps> = function ResultChart(props) {
+  const [activated, setActivated] = useState<"table" | "bar" | "pie">("table");
+  useEffect(() => {}, [props.data]);
   return (
-    <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4">
-      <ChartButtons />
+    <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4 overflow-y-scroll">
+      <ChartButtons activated={activated} setActivated={setActivated} />
+      <div className="p-4">
+        {activated === "table" && <ResultTable data={props.data} />}
+      </div>
     </div>
   );
 };
 
-const ChartButtons: React.FC = function ChartButtons(props) {
-  const [activated, setActivated] = useState<"table" | "bar" | "pie">("table");
+interface IChartButtonsProps {
+  activated: "table" | "bar" | "pie";
+  setActivated: (chart: "table" | "bar" | "pie") => void;
+}
+
+const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
+  activated,
+  setActivated,
+}) {
   return (
     <div className="flex flex-row justify-between items-center rounded border border-gray-500 w-24">
       <button

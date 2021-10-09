@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { GetStaticProps } from "next";
 import { SideBarContext } from "../components/Layout";
 import _ from "lodash";
+import axios from "axios";
 
 export interface ISchemaData {
   schema: { table_name: string; column_name: string }[];
