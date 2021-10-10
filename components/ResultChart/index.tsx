@@ -6,6 +6,7 @@ import barChartPath from "../../public/bar-chart.png";
 import { IResultData } from "../../pages/result";
 import ResultTable from "../ResultTable";
 import ResultBar from "../ResultBar";
+import ResultPie from "../ResultPie";
 
 interface IResultChartProps {
   data: IResultData;
@@ -22,7 +23,7 @@ const ResultChart: React.FC<IResultChartProps> = function ResultChart(props) {
         ) : activated === "bar" ? (
           <ResultBar data={props.data} />
         ) : (
-          <></>
+          <ResultPie data={props.data} />
         )}
       </div>
     </div>
