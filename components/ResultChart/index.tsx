@@ -5,6 +5,7 @@ import pieChartPath from "../../public/pie-chart.png";
 import barChartPath from "../../public/bar-chart.png";
 import { IResultData } from "../../pages/result";
 import ResultTable from "../ResultTable";
+import ResultBar from "../ResultBar";
 
 interface IResultChartProps {
   data: IResultData;
@@ -16,7 +17,13 @@ const ResultChart: React.FC<IResultChartProps> = function ResultChart(props) {
     <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4 overflow-y-scroll">
       <ChartButtons activated={activated} setActivated={setActivated} />
       <div className="p-4">
-        {activated === "table" && <ResultTable data={props.data} />}
+        {activated === "table" ? (
+          <ResultTable data={props.data} />
+        ) : activated === "bar" ? (
+          <ResultBar data={props.data} />
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
@@ -75,408 +82,406 @@ const data: {
   groupBy: IResultData;
 } = {
   plain: [
-    [
-      {
-        customer_name: "Wilman Kala",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Wilman Kala",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Supremes delices",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Supremes delices",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Hanari Carnes",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Richter Supermarkt",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Mascarpone Fabioli",
-      },
-      {
-        customer_name: "Wartian Herkku",
-        product_name: "Queso Manchego La Pastora",
-      },
-      {
-        customer_name: "Frankenversand",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "GROSELLA-Restaurante",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "White Clover Markets",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "White Clover Markets",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Split Rail Beer & Ale",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Rattlesnake Canyon Grocery",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Rattlesnake Canyon Grocery",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "QUICK-Stop",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "QUICK-Stop",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Vins et alcools Chevalier",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Vins et alcools Chevalier",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Magazzini Alimentari Riuniti",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Berglunds snabbkop",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Lehmanns Marktstand",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Rattlesnake Canyon Grocery",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Blondel pere et fils",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Tortuga Restaurante",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Tortuga Restaurante",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Ana Trujillo Emparedados y helados",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Du monde entier",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Rattlesnake Canyon Grocery",
-        product_name: "Mascarpone Fabioli",
-      },
-      {
-        customer_name: "Wartian Herkku",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Save-a-lot Markets",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Koniglich Essen",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Koniglich Essen",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Folk och fa HB",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Furia Bacalhau e Frutos do Mar",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Wartian Herkku",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Mascarpone Fabioli",
-      },
-      {
-        customer_name: "Frankenversand",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Simons bistro",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Simons bistro",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Frankenversand",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "La maison dAsie",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Piccolo und mehr",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Die Wandernde Kuh",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Die Wandernde Kuh",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "LILA-Supermercado",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Seven Seas Imports",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Seven Seas Imports",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "QUICK-Stop",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Drachenblut Delikatessend",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Eastern Connection",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Eastern Connection",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Antonio Moreno Taqueria",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Queen Cozinha",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Queen Cozinha",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Wolski",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Mere Paillarde",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Folk och fa HB",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Hungry Owl All-Night Grocers",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Berglunds snabbkop",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Split Rail Beer & Ale",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Sante Gourmet",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Sante Gourmet",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Piccolo und mehr",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Save-a-lot Markets",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "HILARION-Abastos",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Frankenversand",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Frankenversand",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Vaffeljernet",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Rattlesnake Canyon Grocery",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Ottilies Kaseladen",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Ottilies Kaseladen",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Ottilies Kaseladen",
-        product_name: "Fltemysost",
-      },
-      {
-        customer_name: "Bottom-Dollar Marketse",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Bottom-Dollar Marketse",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Bottom-Dollar Marketse",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Familia Arquibaldo",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Hungry Coyote Import Store",
-        product_name: "Geitost",
-      },
-      {
-        customer_name: "Richter Supermarkt",
-        product_name: "Camembert Pierrot",
-      },
-      {
-        customer_name: "Richter Supermarkt",
-        product_name: "Gudbrandsdalsost",
-      },
-      {
-        customer_name: "Gourmet Lanchonetes",
-        product_name: "Gorgonzola Telino",
-      },
-      {
-        customer_name: "Gourmet Lanchonetes",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Raclette Courdavault",
-      },
-      {
-        customer_name: "Folk och fa HB",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Consolidated Holdings",
-        product_name: "Mozzarella di Giovanni",
-      },
-      {
-        customer_name: "Mere Paillarde",
-        product_name: "Queso Manchego La Pastora",
-      },
-      {
-        customer_name: "Ernst Handel",
-        product_name: "Queso Cabrales",
-      },
-      {
-        customer_name: "Reggiani Caseifici",
-        product_name: "Queso Cabrales",
-      },
-    ],
+    {
+      customer_name: "Wilman Kala",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Wilman Kala",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Supremes delices",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Supremes delices",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Hanari Carnes",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Richter Supermarkt",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Mascarpone Fabioli",
+    },
+    {
+      customer_name: "Wartian Herkku",
+      product_name: "Queso Manchego La Pastora",
+    },
+    {
+      customer_name: "Frankenversand",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "GROSELLA-Restaurante",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "White Clover Markets",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "White Clover Markets",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Split Rail Beer & Ale",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Rattlesnake Canyon Grocery",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Rattlesnake Canyon Grocery",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "QUICK-Stop",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "QUICK-Stop",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Vins et alcools Chevalier",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Vins et alcools Chevalier",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Magazzini Alimentari Riuniti",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Berglunds snabbkop",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Lehmanns Marktstand",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Rattlesnake Canyon Grocery",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Blondel pere et fils",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Tortuga Restaurante",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Tortuga Restaurante",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Ana Trujillo Emparedados y helados",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Du monde entier",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Rattlesnake Canyon Grocery",
+      product_name: "Mascarpone Fabioli",
+    },
+    {
+      customer_name: "Wartian Herkku",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Save-a-lot Markets",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Koniglich Essen",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Koniglich Essen",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Folk och fa HB",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Furia Bacalhau e Frutos do Mar",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Wartian Herkku",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Mascarpone Fabioli",
+    },
+    {
+      customer_name: "Frankenversand",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Simons bistro",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Simons bistro",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Frankenversand",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "La maison dAsie",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Piccolo und mehr",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Die Wandernde Kuh",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Die Wandernde Kuh",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "LILA-Supermercado",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Seven Seas Imports",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Seven Seas Imports",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "QUICK-Stop",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Drachenblut Delikatessend",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Eastern Connection",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Eastern Connection",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Antonio Moreno Taqueria",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Queen Cozinha",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Queen Cozinha",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Wolski",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Mere Paillarde",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Folk och fa HB",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Hungry Owl All-Night Grocers",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Berglunds snabbkop",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Split Rail Beer & Ale",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Sante Gourmet",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Sante Gourmet",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Piccolo und mehr",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Save-a-lot Markets",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "HILARION-Abastos",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Frankenversand",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Frankenversand",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Vaffeljernet",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Rattlesnake Canyon Grocery",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Ottilies Kaseladen",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Ottilies Kaseladen",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Ottilies Kaseladen",
+      product_name: "Fltemysost",
+    },
+    {
+      customer_name: "Bottom-Dollar Marketse",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Bottom-Dollar Marketse",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Bottom-Dollar Marketse",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Familia Arquibaldo",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Hungry Coyote Import Store",
+      product_name: "Geitost",
+    },
+    {
+      customer_name: "Richter Supermarkt",
+      product_name: "Camembert Pierrot",
+    },
+    {
+      customer_name: "Richter Supermarkt",
+      product_name: "Gudbrandsdalsost",
+    },
+    {
+      customer_name: "Gourmet Lanchonetes",
+      product_name: "Gorgonzola Telino",
+    },
+    {
+      customer_name: "Gourmet Lanchonetes",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Raclette Courdavault",
+    },
+    {
+      customer_name: "Folk och fa HB",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Consolidated Holdings",
+      product_name: "Mozzarella di Giovanni",
+    },
+    {
+      customer_name: "Mere Paillarde",
+      product_name: "Queso Manchego La Pastora",
+    },
+    {
+      customer_name: "Ernst Handel",
+      product_name: "Queso Cabrales",
+    },
+    {
+      customer_name: "Reggiani Caseifici",
+      product_name: "Queso Cabrales",
+    },
   ],
   aggOnly: [
     {
@@ -940,111 +945,111 @@ const data: {
       customer_name: "Hungry Owl All-Night Grocers",
     },
   ],
-  groupBy:[
+  groupBy: [
     {
-        "country": "Austria",
-        "max": 263.5,
-        "min": 2.5
+      country: "Austria",
+      max: 263.5,
+      min: 2.5,
     },
     {
-        "country": "Venezuela",
-        "max": 123.79,
-        "min": 9.2
+      country: "Venezuela",
+      max: 123.79,
+      min: 9.2,
     },
     {
-        "country": "Germany",
-        "max": 55,
-        "min": 2.5
+      country: "Germany",
+      max: 55,
+      min: 2.5,
     },
     {
-        "country": "Poland",
-        "max": 13.25,
-        "min": 12.5
+      country: "Poland",
+      max: 13.25,
+      min: 12.5,
     },
     {
-        "country": "France",
-        "max": 263.5,
-        "min": 4.5
+      country: "France",
+      max: 263.5,
+      min: 4.5,
     },
     {
-        "country": "Argentina",
-        "max": 23.25,
-        "min": 10
+      country: "Argentina",
+      max: 23.25,
+      min: 10,
     },
     {
-        "country": "Sweden",
-        "max": 81,
-        "min": 4.5
+      country: "Sweden",
+      max: 81,
+      min: 4.5,
     },
     {
-        "country": "Italy",
-        "max": 55,
-        "min": 4.5
+      country: "Italy",
+      max: 55,
+      min: 4.5,
     },
     {
-        "country": "Spain",
-        "max": 38,
-        "min": 4.5
+      country: "Spain",
+      max: 38,
+      min: 4.5,
     },
     {
-        "country": "Brazil",
-        "max": 263.5,
-        "min": 2.5
+      country: "Brazil",
+      max: 263.5,
+      min: 2.5,
     },
     {
-        "country": "UK",
-        "max": 123.79,
-        "min": 4.5
+      country: "UK",
+      max: 123.79,
+      min: 4.5,
     },
     {
-        "country": "Ireland",
-        "max": 55,
-        "min": 12.5
+      country: "Ireland",
+      max: 55,
+      min: 12.5,
     },
     {
-        "country": "Denmark",
-        "max": 263.5,
-        "min": 2.5
+      country: "Denmark",
+      max: 263.5,
+      min: 2.5,
     },
     {
-        "country": "Switzerland",
-        "max": 55,
-        "min": 4.5
+      country: "Switzerland",
+      max: 55,
+      min: 4.5,
     },
     {
-        "country": "Belgium",
-        "max": 81,
-        "min": 2.5
+      country: "Belgium",
+      max: 81,
+      min: 2.5,
     },
     {
-        "country": "USA",
-        "max": 263.5,
-        "min": 2.5
+      country: "USA",
+      max: 263.5,
+      min: 2.5,
     },
     {
-        "country": "Portugal",
-        "max": 55,
-        "min": 4.5
+      country: "Portugal",
+      max: 55,
+      min: 4.5,
     },
     {
-        "country": "Finland",
-        "max": 46,
-        "min": 9.2
+      country: "Finland",
+      max: 46,
+      min: 9.2,
     },
     {
-        "country": "Mexico",
-        "max": 123.79,
-        "min": 4.5
+      country: "Mexico",
+      max: 123.79,
+      min: 4.5,
     },
     {
-        "country": "Canada",
-        "max": 263.5,
-        "min": 2.5
+      country: "Canada",
+      max: 263.5,
+      min: 2.5,
     },
     {
-        "country": "Norway",
-        "max": 55,
-        "min": 4.5
-    }
-]
+      country: "Norway",
+      max: 55,
+      min: 4.5,
+    },
+  ],
 };
