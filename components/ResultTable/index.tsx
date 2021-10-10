@@ -26,19 +26,23 @@ const ResultTable: React.FC<IResultTableProps> = function ResultTable(props) {
     useTable({ columns, data } as any);
 
   return (
-    <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
+    <table
+      {...getTableProps()}
+      //  style={{ border: "solid 1px blue" }}
+    >
       <thead>
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
               <th
                 {...column.getHeaderProps()}
-                style={{
-                  borderBottom: "solid 3px red",
-                  background: "aliceblue",
-                  color: "black",
-                  fontWeight: "bold",
-                }}>
+                // style={{
+                //   borderBottom: "solid 3px red",
+                //   background: "aliceblue",
+                //   color: "black",
+                //   fontWeight: "bold",
+                // }}
+              >
                 {column.render("Header")}
               </th>
             ))}
@@ -54,11 +58,12 @@ const ResultTable: React.FC<IResultTableProps> = function ResultTable(props) {
                 return (
                   <td
                     {...cell.getCellProps()}
-                    style={{
-                      padding: "10px",
-                      border: "solid 1px gray",
-                      background: "papayawhip",
-                    }}>
+                    // style={{
+                    //   padding: "10px",
+                    //   border: "solid 1px gray",
+                    //   background: "papayawhip",
+                    // }}
+                    >
                     {cell.render("Cell")}
                   </td>
                 );

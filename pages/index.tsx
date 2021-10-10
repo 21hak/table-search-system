@@ -72,7 +72,7 @@ const Home = (props: ISchemaData) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const data: ISchemaData = await fetch("http://localhost:40010/").then(
+  const data: ISchemaData = await fetch("http://localhost:40011/").then(
     function (response) {
       return response.json();
     }

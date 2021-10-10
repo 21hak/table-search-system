@@ -1,6 +1,6 @@
 // printed-books/:book-id
 import axios from "axios";
-import { clamp } from "lodash";
+import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,7 +32,15 @@ export type IResultData = Array<{ [column: string]: string | number }>;
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
-    await axios.post("http://localhost:40010/secondPage", params, {
+    await axios.post("http://localhost:40011/secondPage", params, {
+      headers: { "content-type": "application/json" },
+    })
+  ).data;
+};
+
+const fetchSQLResult = async (params: any): Promise<INlQueryResult> => {
+  return (
+    await axios.post("http://localhost:40011/secondPage", params, {
       headers: { "content-type": "application/json" },
     })
   ).data;
@@ -59,10 +67,11 @@ export default function Result() {
   const [nlQuery, setnlQuery] = useState("");
   const [selects, setSelects] = useState<ISelect[]>([]);
   const [tables, setTables] = useState<string[]>([]);
-  const [groupBy, setGroupBy] = useState<string[]>([]);
+  const [groupBys, setGroupBys] = useState<string[]>([]);
   const [wheres, setWheres] = useState<IWhere[]>([]);
-  const [joinCondition, setJoinCondition] = useState<string[]>([]);
+  const [joinConditions, setJoinConditions] = useState<string[]>([]);
   const [data, setData] = useState<IResultData>([]);
+  const [modified, setModified] = useState(false);
 
   const {
     register,
@@ -83,6 +92,29 @@ export default function Result() {
   }, [router.query]);
 
   useEffect(() => {
+    if (modified) {
+      const params = {
+        sql: {
+          selects: selects.map((select) => [select.agg, select.column]),
+          from: tables,
+          where: wheres.map((where) => [where.left, where.sign, where.right]),
+          groupby: groupBys,
+          join_conditions: joinConditions,
+        },
+      };
+      fetchSQLResult(params).then((rst) => {
+        setData(rst.data);
+        setGroupBys(rst.sql.groupby);
+        setSelects(buildSelectFromResult(rst.sql.select));
+        setTables(rst.sql.from);
+        setJoinConditions(rst.sql.join_conditions);
+        setWheres(buildWhereFromResult(rst.sql.where));
+        setModified(false);
+      });
+    }
+  }, [modified]);
+
+  useEffect(() => {
     if (nlQuery) {
       const params = {
         nlQuery: nlQuery,
@@ -91,9 +123,10 @@ export default function Result() {
       fetchNlQueryResult(params).then((rst) => {
         console.log(rst);
         setData(rst.data);
+        setGroupBys(rst.sql.groupby);
         setSelects(buildSelectFromResult(rst.sql.select));
         setTables(rst.sql.from);
-        setJoinCondition(rst.sql.join_conditions);
+        setJoinConditions(rst.sql.join_conditions);
         setWheres(buildWhereFromResult(rst.sql.where));
       });
     }
@@ -119,6 +152,11 @@ export default function Result() {
           <div className="flex flex-wrap items-center">
             {selects.map((select, index) => (
               <span
+                onClick={() => {
+                  selects.splice(index, 1);
+                  setSelects([...selects]);
+                  setModified(true);
+                }}
                 key={`${select.column}${index}}`}
                 className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
                 {select.column}
@@ -129,11 +167,33 @@ export default function Result() {
         <div className="flex items-start">
           <span className="font-normal w-28 block">Conditions</span>
           <div className="flex flex-wrap items-center">
-            {wheres.map((where) => (
+            {wheres.map((where, index) => (
               <span
+                onClick={() => {
+                  wheres.splice(index, 1);
+                  setWheres([...wheres]);
+                  setModified(true);
+                }}
                 key={`${where.left}${where.sign}${where.right}`}
                 className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
                 {`${where.left}${where.sign}${where.right}`}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-start">
+          <span className="font-normal w-28 block">GroupBy</span>
+          <div className="flex flex-wrap items-center">
+            {groupBys.map((groupBy, index) => (
+              <span
+                onClick={() => {
+                  groupBys.splice(index, 1);
+                  setGroupBys([...groupBys]);
+                  setModified(true);
+                }}
+                key={groupBy}
+                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
+                {groupBy}
               </span>
             ))}
           </div>
