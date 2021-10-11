@@ -35,6 +35,7 @@ export type ISQL = {
 export type INlQueryResult = {
   data: IResultData;
   sql: IResultSQL;
+  db_id: string;
 };
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
@@ -74,6 +75,7 @@ export default function Result() {
   const [nlQuery, setnlQuery] = useState("");
   const [data, setData] = useState<IResultData>([]);
   const [modified, setModified] = useState(false);
+  const [dbID, setDbID] = useState("");
   const [SQL, setSQL] = useState<ISQL>({
     select: [],
     from: [],
@@ -115,14 +117,16 @@ export default function Result() {
         sql: {
           select: SQL.select.map((select) => [select.agg, select.column]),
           from: SQL.from,
-          where: SQL.where.map((where) => [
-            where.left,
-            where.sign,
-            where.right,
-          ]),
+          where: SQL.where.map(
+            (where) =>
+              `${where.left}
+            ${where.sign}
+            ${where.right}}`
+          ),
           groupby: SQL.groupby,
           join_conditions: SQL.joinCondition,
         },
+        db_id: dbID,
       };
       fetchSQLResult(params).then((rst) => {
         setData(rst.data);
@@ -131,7 +135,7 @@ export default function Result() {
           from: rst.sql.from,
           where: buildWhereFromResult(rst.sql.where),
           groupby: rst.sql.groupby,
-          joinCondition: rst.sql.groupby,
+          joinCondition: rst.sql.join_conditions,
         });
         setModified(false);
       });
@@ -146,13 +150,14 @@ export default function Result() {
       // or:
       fetchNlQueryResult(params).then((rst) => {
         console.log(rst);
+        setDbID(rst.db_id);
         setData(rst.data);
         setSQL({
           select: buildSelectFromResult(rst.sql.select),
           from: rst.sql.from,
           where: buildWhereFromResult(rst.sql.where),
           groupby: rst.sql.groupby,
-          joinCondition: rst.sql.groupby,
+          joinCondition: rst.sql.join_conditions,
         });
       });
     }
@@ -241,8 +246,8 @@ export default function Result() {
           })}
         />
       </form>
-      <ResultChart data={dummyData.groupBy} sql={SQL} />
-      {/* <ResultChart data={data} /> */}
+      {/* <ResultChart data={dummyData.groupBy} sql={SQL} /> */}
+      <ResultChart data={data} sql={SQL} />
     </div>
   );
 }
