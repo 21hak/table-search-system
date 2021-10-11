@@ -3,27 +3,31 @@ import Image from "next/image";
 import tablePath from "../../public/table.png";
 import pieChartPath from "../../public/pie-chart.png";
 import barChartPath from "../../public/bar-chart.png";
-import { IResultData } from "../../pages/result";
+import { INlQueryResult, IResultData, ISQL } from "../../pages/result";
 import ResultTable from "../ResultTable";
 import ResultBar from "../ResultBar";
 import ResultPie from "../ResultPie";
 
 interface IResultChartProps {
   data: IResultData;
+  sql: ISQL;
 }
-const ResultChart: React.FC<IResultChartProps> = function ResultChart(props) {
+const ResultChart: React.FC<IResultChartProps> = function ResultChart({
+  data,
+  sql,
+}) {
   const [activated, setActivated] = useState<"table" | "bar" | "pie">("table");
-  useEffect(() => {}, [props.data]);
+
   return (
-    <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4 overflow-y-scroll">
+    <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4 overflow-auto">
       <ChartButtons activated={activated} setActivated={setActivated} />
       <div className="p-4">
         {activated === "table" ? (
-          <ResultTable data={props.data} />
+          <ResultTable data={data} />
         ) : activated === "bar" ? (
-          <ResultBar data={props.data} />
+          <ResultBar data={data} sql={sql} />
         ) : (
-          <ResultPie data={props.data} />
+          <ResultPie data={data} sql={sql} />
         )}
       </div>
     </div>
@@ -76,7 +80,7 @@ const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
 };
 export default ResultChart;
 
-const data: {
+export const dummyData: {
   plain: IResultData;
   aggOnly: IResultData;
   groupByOnly: IResultData;
@@ -947,110 +951,26 @@ const data: {
     },
   ],
   groupBy: [
-    {
-      country: "Austria",
-      max: 263.5,
-      min: 2.5,
-    },
-    {
-      country: "Venezuela",
-      max: 123.79,
-      min: 9.2,
-    },
-    {
-      country: "Germany",
-      max: 55,
-      min: 2.5,
-    },
-    {
-      country: "Poland",
-      max: 13.25,
-      min: 12.5,
-    },
-    {
-      country: "France",
-      max: 263.5,
-      min: 4.5,
-    },
-    {
-      country: "Argentina",
-      max: 23.25,
-      min: 10,
-    },
-    {
-      country: "Sweden",
-      max: 81,
-      min: 4.5,
-    },
-    {
-      country: "Italy",
-      max: 55,
-      min: 4.5,
-    },
-    {
-      country: "Spain",
-      max: 38,
-      min: 4.5,
-    },
-    {
-      country: "Brazil",
-      max: 263.5,
-      min: 2.5,
-    },
-    {
-      country: "UK",
-      max: 123.79,
-      min: 4.5,
-    },
-    {
-      country: "Ireland",
-      max: 55,
-      min: 12.5,
-    },
-    {
-      country: "Denmark",
-      max: 263.5,
-      min: 2.5,
-    },
-    {
-      country: "Switzerland",
-      max: 55,
-      min: 4.5,
-    },
-    {
-      country: "Belgium",
-      max: 81,
-      min: 2.5,
-    },
-    {
-      country: "USA",
-      max: 263.5,
-      min: 2.5,
-    },
-    {
-      country: "Portugal",
-      max: 55,
-      min: 4.5,
-    },
-    {
-      country: "Finland",
-      max: 46,
-      min: 9.2,
-    },
-    {
-      country: "Mexico",
-      max: 123.79,
-      min: 4.5,
-    },
-    {
-      country: "Canada",
-      max: 263.5,
-      min: 2.5,
-    },
-    {
-      country: "Norway",
-      max: 55,
-      min: 4.5,
-    },
+    { test: "1", country: "Austria", max: 263.5, min: 2.5 },
+    { test: "1", country: "Venezuela", max: 123.79, min: 9.2 },
+    { test: "1", country: "Germany", max: 55, min: 2.5 },
+    { test: "1", country: "Poland", max: 13.25, min: 12.5 },
+    { test: "1", country: "France", max: 263.5, min: 4.5 },
+    { test: "1", country: "Argentina", max: 23.25, min: 10 },
+    { test: "1", country: "Sweden", max: 81, min: 4.5 },
+    { test: "2", country: "Italy", max: 55, min: 4.5 },
+    { test: "2", country: "Spain", max: 38, min: 4.5 },
+    { test: "2", country: "Brazil", max: 263.5, min: 2.5 },
+    { test: "2", country: "UK", max: 123.79, min: 4.5 },
+    { test: "2", country: "Ireland", max: 55, min: 12.5 },
+    { test: "2", country: "Denmark", max: 263.5, min: 2.5 },
+    { test: "2", country: "Switzerland", max: 55, min: 4.5 },
+    { test: "3", country: "Belgium", max: 81, min: 2.5 },
+    { test: "3", country: "USA", max: 263.5, min: 2.5 },
+    { test: "3", country: "Portugal", max: 55, min: 4.5 },
+    { test: "3", country: "Finland", max: 46, min: 9.2 },
+    { test: "3", country: "Mexico", max: 123.79, min: 4.5 },
+    { test: "3", country: "Canada", max: 263.5, min: 2.5 },
+    { test: "3", country: "Norway", max: 55, min: 4.5 },
   ],
 };

@@ -4,7 +4,7 @@ import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import ResultChart from "../components/ResultChart";
+import ResultChart, { dummyData } from "../components/ResultChart";
 
 type ISelect = {
   column: string;
@@ -17,18 +17,25 @@ type IWhere = {
   right: string | number;
 };
 
-type INlQueryResult = {
-  data: IResultData;
-  sql: {
-    select: Array<["NONE" | "MAX" | "MIN", string]>;
-    from: string[];
-    where: Array<[string, "=" | "<=", string]>;
-    groupby: string[];
-    join_conditions: string[];
-  };
-};
-
 export type IResultData = Array<{ [column: string]: string | number }>;
+export type IResultSQL = {
+  select: Array<["NONE" | "MAX" | "MIN", string]>;
+  from: string[];
+  where: Array<[string, "=" | "<=", string]>;
+  groupby: string[];
+  join_conditions: string[];
+};
+export type ISQL = {
+  select: Array<ISelect>;
+  from: string[];
+  where: Array<IWhere>;
+  groupby: string[];
+  joinCondition: string[];
+};
+export type INlQueryResult = {
+  data: IResultData;
+  sql: IResultSQL;
+};
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
@@ -48,7 +55,7 @@ const fetchSQLResult = async (params: any): Promise<INlQueryResult> => {
 
 const buildSelectFromResult = (
   selects: Array<["NONE" | "MAX" | "MIN", string]>
-) => {
+): ISelect[] => {
   return selects.map((select) => ({
     column: select[1],
     agg: select[0],
@@ -65,13 +72,20 @@ const buildWhereFromResult = (wheres: Array<[string, "=" | "<=", string]>) => {
 export default function Result() {
   const router = useRouter();
   const [nlQuery, setnlQuery] = useState("");
-  const [selects, setSelects] = useState<ISelect[]>([]);
-  const [tables, setTables] = useState<string[]>([]);
-  const [groupBys, setGroupBys] = useState<string[]>([]);
-  const [wheres, setWheres] = useState<IWhere[]>([]);
-  const [joinConditions, setJoinConditions] = useState<string[]>([]);
   const [data, setData] = useState<IResultData>([]);
   const [modified, setModified] = useState(false);
+  const [SQL, setSQL] = useState<ISQL>({
+    select: [],
+    from: [],
+    where: [],
+    groupby: [],
+    joinCondition: [],
+  });
+  // const [selects, setSelects] = useState<ISelect[]>([]);
+  // const [tables, setTables] = useState<string[]>([]);
+  // const [groupBys, setGroupBys] = useState<string[]>([]);
+  // const [wheres, setWheres] = useState<IWhere[]>([]);
+  // const [joinConditions, setJoinConditions] = useState<string[]>([]);
 
   const {
     register,
@@ -87,6 +101,10 @@ export default function Result() {
       query: { nlQuery: data.query },
     });
   };
+  const onClear = () => {
+    router.push({ pathname: "/" });
+  };
+
   useEffect(() => {
     if (router.query.nlQuery) setnlQuery(router.query.nlQuery as string);
   }, [router.query]);
@@ -95,20 +113,26 @@ export default function Result() {
     if (modified) {
       const params = {
         sql: {
-          selects: selects.map((select) => [select.agg, select.column]),
-          from: tables,
-          where: wheres.map((where) => [where.left, where.sign, where.right]),
-          groupby: groupBys,
-          join_conditions: joinConditions,
+          select: SQL.select.map((select) => [select.agg, select.column]),
+          from: SQL.from,
+          where: SQL.where.map((where) => [
+            where.left,
+            where.sign,
+            where.right,
+          ]),
+          groupby: SQL.groupby,
+          join_conditions: SQL.joinCondition,
         },
       };
       fetchSQLResult(params).then((rst) => {
         setData(rst.data);
-        setGroupBys(rst.sql.groupby);
-        setSelects(buildSelectFromResult(rst.sql.select));
-        setTables(rst.sql.from);
-        setJoinConditions(rst.sql.join_conditions);
-        setWheres(buildWhereFromResult(rst.sql.where));
+        setSQL({
+          select: buildSelectFromResult(rst.sql.select),
+          from: rst.sql.from,
+          where: buildWhereFromResult(rst.sql.where),
+          groupby: rst.sql.groupby,
+          joinCondition: rst.sql.groupby,
+        });
         setModified(false);
       });
     }
@@ -123,11 +147,13 @@ export default function Result() {
       fetchNlQueryResult(params).then((rst) => {
         console.log(rst);
         setData(rst.data);
-        setGroupBys(rst.sql.groupby);
-        setSelects(buildSelectFromResult(rst.sql.select));
-        setTables(rst.sql.from);
-        setJoinConditions(rst.sql.join_conditions);
-        setWheres(buildWhereFromResult(rst.sql.where));
+        setSQL({
+          select: buildSelectFromResult(rst.sql.select),
+          from: rst.sql.from,
+          where: buildWhereFromResult(rst.sql.where),
+          groupby: rst.sql.groupby,
+          joinCondition: rst.sql.groupby,
+        });
       });
     }
   }, [nlQuery]);
@@ -138,7 +164,7 @@ export default function Result() {
         <div className="flex items-start">
           <span className="font-normal w-28 block">Tables</span>
           <div className="flex flex-wrap items-center">
-            {tables.map((table) => (
+            {SQL.from.map((table) => (
               <span
                 key={table}
                 className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
@@ -150,11 +176,11 @@ export default function Result() {
         <div className="flex items-start">
           <span className="font-normal w-28 block">Outputs</span>
           <div className="flex flex-wrap items-center">
-            {selects.map((select, index) => (
+            {SQL.select.map((select, index) => (
               <span
                 onClick={() => {
-                  selects.splice(index, 1);
-                  setSelects([...selects]);
+                  SQL.select.splice(index, 1);
+                  setSQL({ ...SQL, select: SQL.select });
                   setModified(true);
                 }}
                 key={`${select.column}${index}}`}
@@ -167,11 +193,11 @@ export default function Result() {
         <div className="flex items-start">
           <span className="font-normal w-28 block">Conditions</span>
           <div className="flex flex-wrap items-center">
-            {wheres.map((where, index) => (
+            {SQL.where.map((where, index) => (
               <span
                 onClick={() => {
-                  wheres.splice(index, 1);
-                  setWheres([...wheres]);
+                  SQL.where.splice(index, 1);
+                  setSQL({ ...SQL, where: SQL.where });
                   setModified(true);
                 }}
                 key={`${where.left}${where.sign}${where.right}`}
@@ -184,11 +210,11 @@ export default function Result() {
         <div className="flex items-start">
           <span className="font-normal w-28 block">GroupBy</span>
           <div className="flex flex-wrap items-center">
-            {groupBys.map((groupBy, index) => (
+            {SQL.groupby.map((groupBy, index) => (
               <span
                 onClick={() => {
-                  groupBys.splice(index, 1);
-                  setGroupBys([...groupBys]);
+                  SQL.groupby.splice(index, 1);
+                  setSQL({ ...SQL, groupby: SQL.groupby });
                   setModified(true);
                 }}
                 key={groupBy}
@@ -199,6 +225,13 @@ export default function Result() {
           </div>
         </div>
       </div>
+      <div className="flex justify-center mb-2">
+        <button
+          className="pr-4 pl-4 rounded  border border-gray-600"
+          onClick={onClear}>
+          Clear
+        </button>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           className="border border-gray-400 w-full p-1"
@@ -208,7 +241,8 @@ export default function Result() {
           })}
         />
       </form>
-      <ResultChart data={data} />
+      <ResultChart data={dummyData.groupBy} sql={SQL} />
+      {/* <ResultChart data={data} /> */}
     </div>
   );
 }

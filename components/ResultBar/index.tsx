@@ -1,62 +1,48 @@
-import { IResultData } from "../../pages/result";
+import { IResultData, ISQL } from "../../pages/result";
 import { Bar } from "react-chartjs-2";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface IResultBarProps {
   data: IResultData;
+  sql: ISQL;
 }
 
 const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
+  const labelColumns = props.sql.groupby;
+  const dataColumns = props.sql.select.filter((s) => s.agg !== "NONE");
+  const [label, setLabel] = useState(labelColumns[0].split(".")[1]);
+
+  const [values, setValues] = useState<string[]>([
+    dataColumns[0].agg.toLowerCase(),
+    dataColumns[1].agg.toLowerCase(),
+  ]);
+
   const data = React.useMemo(
     () => ({
-      labels: props.data.map((d) => Object.values(d)[0]),
-      //   labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [
-        {
-          label: `${Object.keys(props.data[0])[1]}`,
-          //   data: props.data.map((d) => Object.values(d)[1]),
-          data: props.data,
+      labels: props.data.map((d) => d[label]),
+      datasets: values.map((v) => ({
+        label: v,
+        data: props.data,
 
-          //   data: [12, 19, 3, 5, 2, 3],
-          parsing: {
-            xAxisKey: "country",
-            yAxisKey: "min",
-          },
-
-          // you can set indiviual colors for each bar
-          //   backgroundColor: [
-          //     "rgba(255, 255, 255, 0.6)",
-          //     "rgba(255, 255, 255, 0.6)",
-          //     "rgba(255, 255, 255, 0.6)",
-          //   ],
-          borderWidth: 1,
+        parsing: {
+          xAxisKey: label,
+          yAxisKey: v,
         },
-        {
-          label: `${Object.keys(props.data[0])[2]}`,
-          //   data: props.data.map((d) => Object.values(d)[1]),
-          data: props.data,
 
-          //   data: [12, 19, 3, 5, 2, 3],
-          parsing: {
-            xAxisKey: "country",
-            yAxisKey: "max",
-          },
-
-          // you can set indiviual colors for each bar
-          //   backgroundColor: [
-          //     "rgba(255, 255, 255, 0.6)",
-          //     "rgba(255, 255, 255, 0.6)",
-          //     "rgba(255, 255, 255, 0.6)",
-          //   ],
-          borderWidth: 1,
-        },
-      ],
+        // you can set indiviual colors for each bar
+        //   backgroundColor: [
+        //     "rgba(255, 255, 255, 0.6)",
+        //     "rgba(255, 255, 255, 0.6)",
+        //     "rgba(255, 255, 255, 0.6)",
+        //   ],
+        borderWidth: 1,
+      })),
     }),
     [props.data]
   );
 
   return (
-    <div>
+    <div className="overflow-auto">
       <Bar
         data={data}
         options={{

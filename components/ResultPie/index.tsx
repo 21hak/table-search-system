@@ -1,19 +1,26 @@
-import { IResultData } from "../../pages/result";
+import { IResultData, ISQL } from "../../pages/result";
 import { Pie } from "react-chartjs-2";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface IResultPieProps {
   data: IResultData;
+  sql: ISQL;
 }
 
 const ResultPie: React.FC<IResultPieProps> = function ResultPie(props) {
+  const labelColumns = props.sql.groupby;
+  const dataColumns = props.sql.select.filter((s) => s.agg !== "NONE");
+  const [label, setLabel] = useState(labelColumns[0].split(".")[1]);
+
+  const [value, setValue] = useState<string>(dataColumns[0].agg.toLowerCase());
+
   const data = React.useMemo(
     () => ({
-      labels: props.data.map((d) => Object.values(d)[0]),
+      labels: props.data.map((d) => d[label]),
       datasets: [
         {
-          label: `${Object.keys(props.data[0])[1]}`,
-          data: props.data.map((d) => Object.values(d)[1]),
+          label: value,
+          data: props.data.map((d) => d[value]),
 
           backgroundColor: [
             "rgba(255, 99, 132, 0.2)",
@@ -39,7 +46,7 @@ const ResultPie: React.FC<IResultPieProps> = function ResultPie(props) {
   );
 
   return (
-    <div>
+    <div className="overflow-auto">
       <Pie
         data={data}
         options={{
