@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ResultChart, { dummyData } from "../components/ResultChart";
 
-type ISelect = {
+export type ISelect = {
   column: string;
   agg: "NONE" | "MAX" | "MIN";
 };
 
-type IWhere = {
+export type IWhere = {
   left: string;
   sign: "=" | "<=";
   right: string | number;

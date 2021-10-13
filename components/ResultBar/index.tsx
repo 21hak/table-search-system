@@ -1,4 +1,4 @@
-import { IResultData, ISQL } from "../../pages/result";
+import { IResultData, ISelect, ISQL } from "../../pages/result";
 import { Bar } from "react-chartjs-2";
 import React, { useEffect, useState } from "react";
 
@@ -22,26 +22,48 @@ export const BORDER_COLOR = [
   "rgba(153, 102, 255, 1)",
   "rgba(255, 159, 64, 1)",
 ];
+// FIXME: sql구문의 select와 data간에 차이가 있음. (select에 중복된 column이 있으면 data에서는 그냥 하나로 보내줌)
+// FIXME: data의 컬럼과 sql구문의 column 네이밍 차이
 
 const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
-  const labelColumns = props.sql.groupby;
-  const dataColumns = props.sql.select.filter((s) => s.agg !== "NONE");
+  const [labelColumns, setLabelColumns] = useState<string[]>([]);
+  const [dataColumns, setDataColumns] = useState<string[]>([]);
   const [label, setLabel] = useState<string>();
   const [values, setValues] = useState<string[]>([]);
   const [chartData, setChartData] = useState<any>();
 
   useEffect(() => {
+    // groupby가 있을 때
+    if (props.sql.groupby.length) {
+      setLabelColumns(props.sql.groupby);
+      setDataColumns(
+        props.sql.select
+          .filter((s) => s.agg !== "NONE")
+          .map((d) => (d.agg !== "NONE" ? d.agg.toLowerCase() : d.column))
+      );
+    } else {
+      // groupby가 없을 때
+      setLabelColumns(
+        Object.entries(props.data[0])
+          .filter(([k, v]) => typeof v === "string")
+          .map(([k, v]) => k)
+      );
+      setDataColumns(
+        Object.entries(props.data[0])
+          .filter(([k, v]) => typeof v === "number")
+          .map(([k, v]) => k)
+      );
+    }
+  }, [props.data]);
+
+  useEffect(() => {
     if (labelColumns.length) {
-      setLabel(labelColumns[0].split(".")[1]);
+      setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
     }
   }, [labelColumns.length]);
 
   useEffect(() => {
-    setValues(
-      dataColumns.map((d) =>
-        d.agg !== "NONE" ? d.agg.toLowerCase() : d.column
-      )
-    );
+    setValues(dataColumns);
   }, [dataColumns.length]);
 
   useEffect(() => {

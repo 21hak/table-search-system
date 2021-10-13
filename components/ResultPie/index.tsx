@@ -9,25 +9,46 @@ interface IResultPieProps {
 }
 
 const ResultPie: React.FC<IResultPieProps> = function ResultPie(props) {
-  const labelColumns = props.sql.groupby;
-  const dataColumns = props.sql.select.filter((s) => s.agg !== "NONE");
+  // const labelColumns = props.sql.groupby;
+  // const dataColumns = props.sql.select.filter((s) => s.agg !== "NONE");
+  const [labelColumns, setLabelColumns] = useState<string[]>([]);
+  const [dataColumns, setDataColumns] = useState<string[]>([]);
   const [label, setLabel] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [chartData, setChartData] = useState<any>();
 
   useEffect(() => {
+    // groupby가 있을 때
+    if (props.sql.groupby.length) {
+      setLabelColumns(props.sql.groupby);
+      setDataColumns(
+        props.sql.select
+          .filter((s) => s.agg !== "NONE")
+          .map((d) => (d.agg !== "NONE" ? d.agg.toLowerCase() : d.column))
+      );
+    } else {
+      // groupby가 없을 때
+      setLabelColumns(
+        Object.entries(props.data[0])
+          .filter(([k, v]) => typeof v === "string")
+          .map(([k, v]) => k)
+      );
+      setDataColumns(
+        Object.entries(props.data[0])
+          .filter(([k, v]) => typeof v === "number")
+          .map(([k, v]) => k)
+      );
+    }
+  }, [props.data]);
+
+  useEffect(() => {
     if (labelColumns.length) {
-      setLabel(labelColumns[0].split(".")[1]);
+      setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
     }
   }, [labelColumns.length]);
 
   useEffect(() => {
-    dataColumns[0] &&
-      setValue(
-        dataColumns[0].agg !== "NONE"
-          ? dataColumns[0].agg.toLowerCase()
-          : dataColumns[0].column
-      );
+    setValue(dataColumns[0]);
   }, [dataColumns.length]);
 
   useEffect(() => {
