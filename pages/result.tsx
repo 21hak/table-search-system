@@ -107,6 +107,15 @@ export default function Result() {
     router.push({ pathname: "/" });
   };
 
+  const onRemoveGroupby = (index: number) => {
+    SQL.groupby.splice(index, 1);
+    if (SQL.groupby.length === 0) {
+      SQL.select.forEach((s) => (s.agg = "NONE"));
+    }
+    setSQL({ ...SQL, select: SQL.select, groupby: SQL.groupby });
+    setModified(true);
+  };
+
   useEffect(() => {
     if (router.query.nlQuery) setnlQuery(router.query.nlQuery as string);
   }, [router.query]);
@@ -218,10 +227,13 @@ export default function Result() {
           <div className="flex flex-wrap items-center">
             {SQL.groupby.map((groupBy, index) => (
               <span
+                // onClick={() => {
+                //   SQL.groupby.splice(index, 1);
+                //   setSQL({ ...SQL, groupby: SQL.groupby });
+                //   setModified(true);
+                // }}
                 onClick={() => {
-                  SQL.groupby.splice(index, 1);
-                  setSQL({ ...SQL, groupby: SQL.groupby });
-                  setModified(true);
+                  onRemoveGroupby(index);
                 }}
                 key={groupBy}
                 className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">

@@ -6,7 +6,15 @@ interface IResultBarProps {
   data: IResultData;
   sql: ISQL;
 }
-const backgroundColor = [
+export const BACKGROUND_COLOR = [
+  "rgba(255, 99, 132, 0.5)",
+  "rgba(54, 162, 235, 0.5)",
+  "rgba(255, 206, 86, 0.5)",
+  "rgba(75, 192, 192, 0.5)",
+  "rgba(153, 102, 255, 0.5)",
+  "rgba(255, 159, 64, 0.5)",
+];
+export const BORDER_COLOR = [
   "rgba(255, 99, 132, 1)",
   "rgba(54, 162, 235, 1)",
   "rgba(255, 206, 86, 1)",
@@ -48,8 +56,9 @@ const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
           yAxisKey: v,
         },
 
-        backgroundColor: backgroundColor[index],
-        // borderWidth: 1,
+        backgroundColor: BACKGROUND_COLOR[index],
+        borderColor: BORDER_COLOR[index],
+        borderWidth: 1,
       })),
     });
   }, [label, values.length]);
