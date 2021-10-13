@@ -59,9 +59,13 @@ const Home = (props: ISchemaData) => {
         {faqs.map((faq, index) => (
           <div
             key={index}
-            className="bg-gray-400 p-2 m-2"
+            className="bg-gray-400 p-2 m-2 cursor-pointer	"
             onClick={() => {
               setValue("query", faq);
+              router.push({
+                pathname: "/result",
+                query: { nlQuery: faq },
+              });
             }}>
             {faq}
           </div>

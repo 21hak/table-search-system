@@ -53,7 +53,7 @@ const ResultPie: React.FC<IResultPieProps> = function ResultPie(props) {
           plugins: {
             title: {
               display: true,
-              text: "Cryptocurrency prices",
+              text: label,
             },
             legend: {
               display: true,

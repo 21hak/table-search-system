@@ -149,7 +149,6 @@ export default function Result() {
       };
       // or:
       fetchNlQueryResult(params).then((rst) => {
-        console.log(rst);
         setDbID(rst.db_id);
         setData(rst.data);
         setSQL({
@@ -190,7 +189,9 @@ export default function Result() {
                 }}
                 key={`${select.column}${index}}`}
                 className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
-                {select.column}
+                {`${select.column} ${
+                  select.agg !== "NONE" ? `(${select.agg})` : ""
+                }`}
               </span>
             ))}
           </div>
