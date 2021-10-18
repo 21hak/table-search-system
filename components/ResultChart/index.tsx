@@ -64,6 +64,8 @@ const ResultChart: React.FC<IResultChartProps> = function ResultChart({
       <ChartButtons
         activated={activated}
         setActivated={setActivated}
+        label={label}
+        values={values}
         className="mb-1"
       />
       {/* <UtilButtons data={data} setData={setData} /> */}
@@ -86,6 +88,8 @@ const ResultChart: React.FC<IResultChartProps> = function ResultChart({
 };
 
 interface IChartButtonsProps extends HTMLProps<HTMLDivElement> {
+  label: string;
+  values: string[];
   activated: "table" | "bar" | "pie";
   setActivated: (chart: "table" | "bar" | "pie") => void;
 }
@@ -93,14 +97,16 @@ interface IChartButtonsProps extends HTMLProps<HTMLDivElement> {
 const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
   activated,
   setActivated,
+  label,
+  values,
   ...props
 }) {
   return (
     <div {...props}>
-      <div className="flex flex-row justify-between items-center rounded border border-gray-500 w-24">
+      <div className="inline-flex flex-row justify-between items-center border border-gray-500">
         <button
           type="button"
-          className={`flex items-center  p-2 border-r rounded-l border-gray-500 flex-1 ${
+          className={`flex items-center p-2 border-gray-500 w-8 h-8 ${
             activated === "table" ? "bg-gray-300" : ""
           }`}
           onClick={() => {
@@ -108,26 +114,32 @@ const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
           }}>
           <Image src={tablePath} />
         </button>
-        <button
-          type="button"
-          className={`flex items-center  p-2 border-r border-gray-500 flex-1 ${
-            activated === "bar" ? "bg-gray-300" : ""
-          }`}
-          onClick={() => {
-            setActivated("bar");
-          }}>
-          <Image src={barChartPath} />
-        </button>
-        <button
-          type="button"
-          className={`flex items-center  p-2  flex-1 rounded-r ${
-            activated === "pie" ? "bg-gray-300" : ""
-          }`}
-          onClick={() => {
-            setActivated("pie");
-          }}>
-          <Image src={pieChartPath} />
-        </button>
+
+        {label && values.length > 0 && (
+          <button
+            type="button"
+            className={`flex items-center p-2 border-gray-500 w-8 h-8 ${
+              activated === "bar" ? "bg-gray-300" : ""
+            }`}
+            onClick={() => {
+              setActivated("bar");
+            }}>
+            <Image src={barChartPath} />
+          </button>
+        )}
+
+        {label && values.length > 0 && (
+          <button
+            type="button"
+            className={`flex items-center p-2  w-8 h-8 ${
+              activated === "pie" ? "bg-gray-300" : ""
+            }`}
+            onClick={() => {
+              setActivated("pie");
+            }}>
+            <Image src={pieChartPath} />
+          </button>
+        )}
       </div>
     </div>
   );

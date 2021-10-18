@@ -260,15 +260,6 @@ export default function Result() {
           Clear
         </button>
       </div>
-      {/* <form onSubmit={handleSubmit(onSubmit)}>
-        <input
-          className="border border-gray-400 w-full p-1"
-          placeholder="Search to Add Fields"
-          {...register("query", {
-            validate: (value) => value !== "",
-          })}
-        />
-      </form> */}
       <div className="flex border border-gray-500 rounded w-full bg-white">
         <Autocomplete
           {...register("query", {
@@ -306,7 +297,9 @@ export default function Result() {
             </div>
           )}
         />
-        <button className="bg-blue-600 text-white m-0.5 pr-1 pl-1 rounded">
+        <button
+          className="bg-blue-600 text-white m-0.5 pr-1 pl-1 rounded"
+          onClick={() => onSelect(input)}>
           Enter
         </button>
       </div>
