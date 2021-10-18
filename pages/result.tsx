@@ -2,9 +2,11 @@
 import axios from "axios";
 import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import ResultChart, { dummyData } from "../components/ResultChart";
+import Autocomplete from "react-autocomplete";
+import { matchColumn } from "../utils";
 
 export type ISelect = {
   column: string;
@@ -24,6 +26,7 @@ export type IResultSQL = {
   where: Array<[string, "=" | "<=", string]>;
   groupby: string[];
   join_conditions: string[];
+  orderby: string[];
 };
 export type ISQL = {
   select: Array<ISelect>;
@@ -31,11 +34,13 @@ export type ISQL = {
   where: Array<IWhere>;
   groupby: string[];
   joinCondition: string[];
+  orderby: string[];
 };
 export type INlQueryResult = {
   data: IResultData;
   sql: IResultSQL;
   db_id: string;
+  recommendations: string[];
 };
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
@@ -82,7 +87,10 @@ export default function Result() {
     where: [],
     groupby: [],
     joinCondition: [],
+    orderby: [],
   });
+  const [input, setInput] = useState("");
+  const [recommendations, setRecommendations] = useState<string[]>([]);
   // const [selects, setSelects] = useState<ISelect[]>([]);
   // const [tables, setTables] = useState<string[]>([]);
   // const [groupBys, setGroupBys] = useState<string[]>([]);
@@ -97,11 +105,10 @@ export default function Result() {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data: any) => {
-    router.push({
-      pathname: "/result",
-      query: { nlQuery: data.query },
-    });
+  const onSelect = (data: any) => {
+    SQL.select.push({ column: data, agg: "NONE" });
+    setSQL({ ...SQL, select: SQL.select });
+    setModified(true);
   };
   const onClear = () => {
     router.push({ pathname: "/" });
@@ -126,12 +133,11 @@ export default function Result() {
         sql: {
           select: SQL.select.map((select) => [select.agg, select.column]),
           from: SQL.from,
-          where: SQL.where.map(
-            (where) =>
-              `${where.left}
-            ${where.sign}
-            ${where.right}}`
-          ),
+          where: SQL.where.map((where) => [
+            where.left,
+            where.sign,
+            where.right,
+          ]),
           groupby: SQL.groupby,
           join_conditions: SQL.joinCondition,
         },
@@ -145,7 +151,9 @@ export default function Result() {
           where: buildWhereFromResult(rst.sql.where),
           groupby: rst.sql.groupby,
           joinCondition: rst.sql.join_conditions,
+          orderby: [],
         });
+        setRecommendations(rst.recommendations);
         setModified(false);
       });
     }
@@ -166,7 +174,9 @@ export default function Result() {
           where: buildWhereFromResult(rst.sql.where),
           groupby: rst.sql.groupby,
           joinCondition: rst.sql.join_conditions,
+          orderby: [],
         });
+        setRecommendations(rst.recommendations);
       });
     }
   }, [nlQuery]);
@@ -197,7 +207,7 @@ export default function Result() {
                   setModified(true);
                 }}
                 key={`${select.column}${index}}`}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
+                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
                 {`${select.column} ${
                   select.agg !== "NONE" ? `(${select.agg})` : ""
                 }`}
@@ -236,7 +246,7 @@ export default function Result() {
                   onRemoveGroupby(index);
                 }}
                 key={groupBy}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
+                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
                 {groupBy}
               </span>
             ))}
@@ -250,17 +260,61 @@ export default function Result() {
           Clear
         </button>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      {/* <form onSubmit={handleSubmit(onSubmit)}>
         <input
           className="border border-gray-400 w-full p-1"
-          placeholder="Modify Your Query"
+          placeholder="Search to Add Fields"
           {...register("query", {
             validate: (value) => value !== "",
           })}
         />
-      </form>
-      {/* <ResultChart data={dummyData.groupBy} sql={SQL} /> */}
-      <ResultChart data={data} sql={SQL} />
+      </form> */}
+      <div className="flex border border-gray-500 rounded w-full bg-white">
+        <Autocomplete
+          {...register("query", {
+            validate: (value) => value !== "",
+          })}
+          value={input}
+          inputProps={{
+            id: "states-autocomplete",
+            className: "focus:outline-none p-1 rounded-l w-full",
+          }}
+          wrapperStyle={{
+            position: "relative",
+            display: "inline-block",
+            flexGrow: 1,
+            zIndex: 1,
+          }}
+          items={recommendations}
+          getItemValue={(item: any) => item}
+          shouldItemRender={matchColumn}
+          // sortItems={sortStates}
+          onChange={(event, value) => setInput(value)}
+          onSelect={onSelect}
+          renderMenu={(children) => (
+            <div className="absolute box-border border border-gray-300 bg-indigo-50">
+              {children}
+            </div>
+          )}
+          renderItem={(item: any, isHighlighted: boolean) => (
+            <div
+              className={`p-1 cursor-pointer ${
+                isHighlighted ? "text-white bg-blue-600" : ""
+              }`}
+              key={item}>
+              {item}
+            </div>
+          )}
+        />
+        <button className="bg-blue-600 text-white m-0.5 pr-1 pl-1 rounded">
+          Enter
+        </button>
+      </div>
+
+      {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
+      {data.length > 0 && (
+        <ResultChart data={data} sql={SQL} setData={setData} />
+      )}
     </div>
   );
 }

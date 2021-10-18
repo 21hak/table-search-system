@@ -1,10 +1,12 @@
 import { IResultData, ISelect, ISQL } from "../../pages/result";
-import { Bar } from "react-chartjs-2";
-import React, { useEffect, useState } from "react";
+import { Bar, Chart } from "react-chartjs-2";
+import React, { useEffect, useRef, useState } from "react";
 
 interface IResultBarProps {
   data: IResultData;
   sql: ISQL;
+  label: string;
+  values: string[];
 }
 export const BACKGROUND_COLOR = [
   "rgba(255, 99, 132, 0.5)",
@@ -26,55 +28,55 @@ export const BORDER_COLOR = [
 // FIXME: data의 컬럼과 sql구문의 column 네이밍 차이
 
 const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
-  const [labelColumns, setLabelColumns] = useState<string[]>([]);
-  const [dataColumns, setDataColumns] = useState<string[]>([]);
-  const [label, setLabel] = useState<string>();
-  const [values, setValues] = useState<string[]>([]);
+  // const [labelColumns, setLabelColumns] = useState<string[]>([]);
+  // const [dataColumns, setDataColumns] = useState<string[]>([]);
+  // const [label, setLabel] = useState<string>();
+  // const [values, setValues] = useState<string[]>([]);
   const [chartData, setChartData] = useState<any>();
 
-  useEffect(() => {
-    // groupby가 있을 때
-    if (props.sql.groupby.length) {
-      setLabelColumns(props.sql.groupby);
-      setDataColumns(
-        props.sql.select
-          .filter((s) => s.agg !== "NONE")
-          .map((d) => (d.agg !== "NONE" ? d.agg.toLowerCase() : d.column))
-      );
-    } else {
-      // groupby가 없을 때
-      setLabelColumns(
-        Object.entries(props.data[0])
-          .filter(([k, v]) => typeof v === "string")
-          .map(([k, v]) => k)
-      );
-      setDataColumns(
-        Object.entries(props.data[0])
-          .filter(([k, v]) => typeof v === "number")
-          .map(([k, v]) => k)
-      );
-    }
-  }, [props.data]);
+  // useEffect(() => {
+  //   // groupby가 있을 때
+  //   if (props.sql.groupby.length) {
+  //     setLabelColumns(props.sql.groupby);
+  //     setDataColumns(
+  //       props.sql.select
+  //         .filter((s) => s.agg !== "NONE")
+  //         .map((d) => (d.agg !== "NONE" ? d.agg.toLowerCase() : d.column))
+  //     );
+  //   } else {
+  //     // groupby가 없을 때
+  //     setLabelColumns(
+  //       Object.entries(props.data[0])
+  //         .filter(([k, v]) => typeof v === "string")
+  //         .map(([k, v]) => k)
+  //     );
+  //     setDataColumns(
+  //       Object.entries(props.data[0])
+  //         .filter(([k, v]) => typeof v === "number")
+  //         .map(([k, v]) => k)
+  //     );
+  //   }
+  // }, [props.data]);
 
-  useEffect(() => {
-    if (labelColumns.length) {
-      setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
-    }
-  }, [labelColumns.length]);
+  // useEffect(() => {
+  //   if (labelColumns.length) {
+  //     setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
+  //   }
+  // }, [labelColumns.length]);
 
-  useEffect(() => {
-    setValues(dataColumns);
-  }, [dataColumns.length]);
+  // useEffect(() => {
+  //   setValues(dataColumns);
+  // }, [dataColumns.length]);
 
   useEffect(() => {
     setChartData({
-      labels: label ? props.data.map((d) => d[label]) : [],
-      datasets: values.map((v, index) => ({
+      labels: props.label ? props.data.map((d) => d[props.label]) : [],
+      datasets: props.values.map((v, index) => ({
         label: v,
         data: props.data,
 
         parsing: {
-          xAxisKey: label,
+          xAxisKey: props.label,
           yAxisKey: v,
         },
 
@@ -83,20 +85,23 @@ const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
         borderWidth: 1,
       })),
     });
-  }, [label, values.length]);
+  }, [props.label, props.values.length]);
+  const chartRef = useRef<HTMLCanvasElement>(null);
 
   return (
     <div className="overflow-auto">
       {chartData && (
         <Bar
+          ref={chartRef}
           data={chartData}
           options={{
             plugins: {
               title: {
                 display: true,
-                text: label,
+                text: props.label,
                 position: "bottom",
               },
+
               legend: {
                 display: true,
                 position: "left",

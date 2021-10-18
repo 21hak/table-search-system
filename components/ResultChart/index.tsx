@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { HTMLProps, useEffect, useState } from "react";
 import Image from "next/image";
 import tablePath from "../../public/table.png";
 import pieChartPath from "../../public/pie-chart.png";
@@ -7,34 +7,85 @@ import { INlQueryResult, IResultData, ISQL } from "../../pages/result";
 import ResultTable from "../ResultTable";
 import ResultBar from "../ResultBar";
 import ResultPie from "../ResultPie";
+import { values } from "lodash";
 
 interface IResultChartProps {
   data: IResultData;
+  setData: (data: IResultData) => void;
   sql: ISQL;
 }
 const ResultChart: React.FC<IResultChartProps> = function ResultChart({
   data,
   sql,
+  setData,
 }) {
   const [activated, setActivated] = useState<"table" | "bar" | "pie">("table");
+  const [labelColumns, setLabelColumns] = useState<string[]>([]);
+  const [dataColumns, setDataColumns] = useState<string[]>([]);
+  const [label, setLabel] = useState<string>("");
+  const [values, setValues] = useState<string[]>([]);
+
+  useEffect(() => {
+    // groupby가 있을 때
+    if (sql.groupby.length) {
+      setLabelColumns(sql.groupby);
+      setDataColumns(
+        sql.select
+          .filter((s) => s.agg !== "NONE")
+          .map((d) => (d.agg !== "NONE" ? d.agg.toLowerCase() : d.column))
+      );
+    } else {
+      // groupby가 없을 때
+      setLabelColumns(
+        Object.entries(data[0])
+          .filter(([k, v]) => typeof v === "string")
+          .map(([k, v]) => k)
+      );
+      setDataColumns(
+        Object.entries(data[0])
+          .filter(([k, v]) => typeof v === "number")
+          .map(([k, v]) => k)
+      );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (labelColumns.length) {
+      setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
+    }
+  }, [labelColumns.length]);
+
+  useEffect(() => {
+    setValues(dataColumns);
+  }, [dataColumns.length]);
 
   return (
     <div className="w-full h-full bg-white border border-gray-400 mt-4 p-4 overflow-auto">
-      <ChartButtons activated={activated} setActivated={setActivated} />
+      <ChartButtons
+        activated={activated}
+        setActivated={setActivated}
+        className="mb-1"
+      />
+      {/* <UtilButtons data={data} setData={setData} /> */}
       <div className="p-4">
         {activated === "table" ? (
           <ResultTable data={data} />
         ) : activated === "bar" ? (
-          <ResultBar data={data} sql={sql} />
+          <ResultBar data={data} sql={sql} label={label} values={values} />
         ) : (
-          <ResultPie data={data} sql={sql} />
+          <ResultPie
+            data={data}
+            sql={sql}
+            label={label}
+            value={values[0] ? values[0] : []}
+          />
         )}
       </div>
     </div>
   );
 };
 
-interface IChartButtonsProps {
+interface IChartButtonsProps extends HTMLProps<HTMLDivElement> {
   activated: "table" | "bar" | "pie";
   setActivated: (chart: "table" | "bar" | "pie") => void;
 }
@@ -42,42 +93,95 @@ interface IChartButtonsProps {
 const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
   activated,
   setActivated,
+  ...props
 }) {
   return (
-    <div className="flex flex-row justify-between items-center rounded border border-gray-500 w-24">
-      <button
-        type="button"
-        className={`flex items-center  p-2 border-r rounded-l border-gray-500 flex-1 ${
-          activated === "table" ? "bg-gray-300" : ""
-        }`}
-        onClick={() => {
-          setActivated("table");
-        }}>
-        <Image src={tablePath} />
-      </button>
-      <button
-        type="button"
-        className={`flex items-center  p-2 border-r border-gray-500 flex-1 ${
-          activated === "bar" ? "bg-gray-300" : ""
-        }`}
-        onClick={() => {
-          setActivated("bar");
-        }}>
-        <Image src={barChartPath} />
-      </button>
-      <button
-        type="button"
-        className={`flex items-center  p-2  flex-1 rounded-r ${
-          activated === "pie" ? "bg-gray-300" : ""
-        }`}
-        onClick={() => {
-          setActivated("pie");
-        }}>
-        <Image src={pieChartPath} />
-      </button>
+    <div {...props}>
+      <div className="flex flex-row justify-between items-center rounded border border-gray-500 w-24">
+        <button
+          type="button"
+          className={`flex items-center  p-2 border-r rounded-l border-gray-500 flex-1 ${
+            activated === "table" ? "bg-gray-300" : ""
+          }`}
+          onClick={() => {
+            setActivated("table");
+          }}>
+          <Image src={tablePath} />
+        </button>
+        <button
+          type="button"
+          className={`flex items-center  p-2 border-r border-gray-500 flex-1 ${
+            activated === "bar" ? "bg-gray-300" : ""
+          }`}
+          onClick={() => {
+            setActivated("bar");
+          }}>
+          <Image src={barChartPath} />
+        </button>
+        <button
+          type="button"
+          className={`flex items-center  p-2  flex-1 rounded-r ${
+            activated === "pie" ? "bg-gray-300" : ""
+          }`}
+          onClick={() => {
+            setActivated("pie");
+          }}>
+          <Image src={pieChartPath} />
+        </button>
+      </div>
     </div>
   );
 };
+
+interface IUtilButtonsProps {
+  values: string[];
+  data: IResultData;
+  setData: (data: IResultData) => void;
+}
+
+const UtilButtons: React.FC<IUtilButtonsProps> = function UtilButtons(props) {
+  const [sortTabVisible, setSortTabVisible] = useState(false);
+  const onClickSort = () => {
+    setSortTabVisible((sortTabVisible) => !sortTabVisible);
+  };
+  return (
+    <div className="flex flex-row justify-start relative">
+      <button
+        type="button"
+        className="p-1 border rounded border-gray-500"
+        onClick={onClickSort}>
+        Sort
+      </button>
+      <SortTab
+        visible={sortTabVisible}
+        values={props.values}
+        data={props.data}
+        setData={props.setData}
+      />
+    </div>
+  );
+};
+
+interface ISortTabProps {
+  visible: boolean;
+  values: string[];
+  data: IResultData;
+  setData: (data: IResultData) => void;
+}
+const SortTab: React.FC<ISortTabProps> = function SortTab(props) {
+  console.log(props.visible);
+  return (
+    <div
+      className={
+        "absolute border border-black " + (props.visible ? "block" : "hidden")
+      }>
+      {props.values.map((v) => (
+        <div>{v}</div>
+      ))}
+    </div>
+  );
+};
+
 export default ResultChart;
 
 export const dummyData: {
