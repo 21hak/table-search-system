@@ -67,7 +67,7 @@ const ResultPie: React.FC<IResultPieProps> = function ResultPie(props) {
         },
       ],
     });
-  }, [props.label, props.value]);
+  }, [props.label, props.value, props.data]);
 
   return (
     <div className="overflow-auto">

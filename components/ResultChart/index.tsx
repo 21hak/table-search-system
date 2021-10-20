@@ -68,7 +68,12 @@ const ResultChart: React.FC<IResultChartProps> = function ResultChart({
         values={values}
         className="mb-1"
       />
-      {/* <UtilButtons data={data} setData={setData} /> */}
+      <UtilButtons
+        values={values}
+        data={data}
+        label={label}
+        setData={setData}
+      />
       <div className="p-4">
         {activated === "table" ? (
           <ResultTable data={data} />
@@ -147,6 +152,7 @@ const ChartButtons: React.FC<IChartButtonsProps> = function ChartButtons({
 
 interface IUtilButtonsProps {
   values: string[];
+  label: string;
   data: IResultData;
   setData: (data: IResultData) => void;
 }
@@ -157,39 +163,119 @@ const UtilButtons: React.FC<IUtilButtonsProps> = function UtilButtons(props) {
     setSortTabVisible((sortTabVisible) => !sortTabVisible);
   };
   return (
-    <div className="flex flex-row justify-start relative">
+    <div className="flex flex-row justify-start">
       <button
         type="button"
-        className="p-1 border rounded border-gray-500"
+        className="p-1 border border-gray-500  relative"
         onClick={onClickSort}>
         Sort
+        <SortTab
+          label={props.label}
+          style={{ left: "100%", top: "100%" }}
+          visible={sortTabVisible}
+          values={props.values}
+          resultData={props.data}
+          setData={props.setData}
+        />
       </button>
-      <SortTab
-        visible={sortTabVisible}
-        values={props.values}
-        data={props.data}
-        setData={props.setData}
-      />
     </div>
   );
 };
 
-interface ISortTabProps {
+interface ISortTabProps extends HTMLProps<HTMLDivElement> {
   visible: boolean;
   values: string[];
-  data: IResultData;
+  label: string;
+  resultData: IResultData;
   setData: (data: IResultData) => void;
 }
-const SortTab: React.FC<ISortTabProps> = function SortTab(props) {
-  console.log(props.visible);
+const SortTab: React.FC<ISortTabProps> = function SortTab({
+  visible,
+  values,
+  resultData,
+  setData,
+  ...props
+}) {
+  const [showFieldSort, setShowFieldSort] = useState(false);
+  const [showOrder, setShowOrder] = useState(false);
+  const [order, setOrder] = useState<string>("ASC");
+  const sortData = (value: string) => {
+    resultData.sort((v1, v2) => {
+      if (order === "DESC") {
+        return v1[value] < v2[value] ? 1 : -1;
+      } else {
+        return v1[value] >= v2[value] ? 1 : -1;
+      }
+    });
+    setData([...resultData]);
+  };
   return (
     <div
+      {...props}
       className={
-        "absolute border border-black " + (props.visible ? "block" : "hidden")
+        "absolute border bg-white shadow p-1  " + (visible ? "block" : "hidden")
       }>
-      {props.values.map((v) => (
-        <div>{v}</div>
-      ))}
+      <div
+        className="hover:bg-gray-300 pr-2 pl-2 text-left relative"
+        onMouseEnter={() => {
+          setShowOrder(true);
+          setShowFieldSort(false);
+        }}>
+        Order
+        <div
+          style={{ left: "100%", top: 0 }}
+          className={
+            "absolute border bg-white shadow p-1  " +
+            (showOrder ? "block" : "hidden")
+          }>
+          {["ASC", "DESC"].map((v) => (
+            <div
+              className="hover:bg-gray-300 pr-2 pl-2 text-left"
+              key={v}
+              onClick={() => {
+                setOrder(v);
+              }}>
+              {v}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div
+        className="hover:bg-gray-300 pr-2 pl-2 text-left"
+        onClick={() => {
+          sortData(props.label);
+        }}
+        onMouseEnter={() => {
+          setShowFieldSort(false);
+          setShowOrder(false);
+        }}>
+        Alphabetic
+      </div>
+      <div
+        className="hover:bg-gray-300 pr-2 pl-2 text-left relative"
+        onMouseEnter={() => {
+          setShowFieldSort(true);
+          setShowOrder(false);
+        }}>
+        Field
+        <div
+          style={{ left: "100%", top: 0 }}
+          className={
+            "absolute border bg-white shadow p-1  " +
+            (showFieldSort ? "block" : "hidden")
+          }>
+          {values.map((v) => (
+            <div
+              className="hover:bg-gray-300 pr-2 pl-2 text-left"
+              key={v}
+              onClick={() => {
+                sortData(v);
+              }}>
+              {v}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

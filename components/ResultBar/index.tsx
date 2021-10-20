@@ -69,6 +69,7 @@ const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
   // }, [dataColumns.length]);
 
   useEffect(() => {
+    console.log("called");
     setChartData({
       labels: props.label ? props.data.map((d) => d[props.label]) : [],
       datasets: props.values.map((v, index) => ({
@@ -85,7 +86,7 @@ const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
         borderWidth: 1,
       })),
     });
-  }, [props.label, props.values.length]);
+  }, [props.label, props.values.length, props.data]);
   const chartRef = useRef<HTMLCanvasElement>(null);
 
   return (
