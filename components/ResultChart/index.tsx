@@ -3,10 +3,12 @@ import Image from "next/image";
 import tablePath from "../../public/table.png";
 import pieChartPath from "../../public/pie-chart.png";
 import barChartPath from "../../public/bar-chart.png";
+import sortPath from "../../public/sort.png";
 import { INlQueryResult, IResultData, ISQL } from "../../pages/result";
 import ResultTable from "../ResultTable";
 import ResultBar from "../ResultBar";
 import ResultPie from "../ResultPie";
+
 import { values } from "lodash";
 
 interface IResultChartProps {
@@ -159,14 +161,45 @@ interface IUtilButtonsProps {
 
 const UtilButtons: React.FC<IUtilButtonsProps> = function UtilButtons(props) {
   const [sortTabVisible, setSortTabVisible] = useState(false);
+  const [order, setOrder] = useState<string>("DESC");
+  const [criteria, setCriteria] = useState<string>("");
   const onClickSort = () => {
     setSortTabVisible((sortTabVisible) => !sortTabVisible);
   };
+
+  const sortData = (value: string) => {
+    props.data.sort((v1, v2) => {
+      if (order === "DESC") {
+        return v1[value] < v2[value] ? 1 : -1;
+      } else {
+        return v1[value] >= v2[value] ? 1 : -1;
+      }
+    });
+    props.setData([...props.data]);
+  };
+
+  const onClickOrder = () => {
+    setOrder((order) => {
+      if (order === "ASC") {
+        return "DESC";
+      } else {
+        return "ASC";
+      }
+    });
+    // setSortTabVisible((sortTabVisible) => !sortTabVisible);
+  };
+
+  useEffect(() => {
+    if (criteria) {
+      sortData(criteria);
+    }
+  }, [criteria, order]);
+
   return (
     <div className="flex flex-row justify-start">
       <button
         type="button"
-        className="p-1 border border-gray-500  relative"
+        className="p-1 border border-gray-500  relative h-8 mr-1"
         onClick={onClickSort}>
         Sort
         <SortTab
@@ -174,10 +207,26 @@ const UtilButtons: React.FC<IUtilButtonsProps> = function UtilButtons(props) {
           style={{ left: "100%", top: "100%" }}
           visible={sortTabVisible}
           values={props.values}
-          resultData={props.data}
-          setData={props.setData}
+          setCriteria={setCriteria}
         />
       </button>
+      <button
+        type="button"
+        className="p-1 border border-gray-500  relative w-8 h-8 mr-1"
+        onClick={onClickOrder}>
+        <Image
+          src={sortPath}
+          className={"transform " + (order === "ASC" ? "-scale-y-100" : "")}
+        />
+      </button>
+      {criteria && (
+        <button
+          type="button"
+          className="flex items-center p-1 border border-gray-500  relative h-8 text-center"
+          onClick={() => setCriteria("")}>
+          {criteria}
+        </button>
+      )}
     </div>
   );
 };
@@ -186,29 +235,16 @@ interface ISortTabProps extends HTMLProps<HTMLDivElement> {
   visible: boolean;
   values: string[];
   label: string;
-  resultData: IResultData;
-  setData: (data: IResultData) => void;
+  setCriteria: (c: string) => void;
 }
 const SortTab: React.FC<ISortTabProps> = function SortTab({
   visible,
   values,
-  resultData,
-  setData,
+  setCriteria,
   ...props
 }) {
   const [showFieldSort, setShowFieldSort] = useState(false);
-  const [showOrder, setShowOrder] = useState(false);
-  const [order, setOrder] = useState<string>("ASC");
-  const sortData = (value: string) => {
-    resultData.sort((v1, v2) => {
-      if (order === "DESC") {
-        return v1[value] < v2[value] ? 1 : -1;
-      } else {
-        return v1[value] >= v2[value] ? 1 : -1;
-      }
-    });
-    setData([...resultData]);
-  };
+
   return (
     <div
       {...props}
@@ -218,36 +254,15 @@ const SortTab: React.FC<ISortTabProps> = function SortTab({
       <div
         className="hover:bg-gray-300 pr-2 pl-2 text-left relative"
         onMouseEnter={() => {
-          setShowOrder(true);
           setShowFieldSort(false);
-        }}>
-        Order
-        <div
-          style={{ left: "100%", top: 0 }}
-          className={
-            "absolute border bg-white shadow p-1  " +
-            (showOrder ? "block" : "hidden")
-          }>
-          {["ASC", "DESC"].map((v) => (
-            <div
-              className="hover:bg-gray-300 pr-2 pl-2 text-left"
-              key={v}
-              onClick={() => {
-                setOrder(v);
-              }}>
-              {v}
-            </div>
-          ))}
-        </div>
-      </div>
+        }}></div>
       <div
         className="hover:bg-gray-300 pr-2 pl-2 text-left"
         onClick={() => {
-          sortData(props.label);
+          setCriteria(props.label);
         }}
         onMouseEnter={() => {
           setShowFieldSort(false);
-          setShowOrder(false);
         }}>
         Alphabetic
       </div>
@@ -255,7 +270,6 @@ const SortTab: React.FC<ISortTabProps> = function SortTab({
         className="hover:bg-gray-300 pr-2 pl-2 text-left relative"
         onMouseEnter={() => {
           setShowFieldSort(true);
-          setShowOrder(false);
         }}>
         Field
         <div
@@ -269,7 +283,7 @@ const SortTab: React.FC<ISortTabProps> = function SortTab({
               className="hover:bg-gray-300 pr-2 pl-2 text-left"
               key={v}
               onClick={() => {
-                sortData(v);
+                setCriteria(v);
               }}>
               {v}
             </div>
