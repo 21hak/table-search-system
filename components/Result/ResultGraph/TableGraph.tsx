@@ -1,4 +1,4 @@
-import { IResultData } from "../../pages/result";
+import { IResultData } from "../../../pages/result";
 import { useTable } from "react-table";
 import React from "react";
 

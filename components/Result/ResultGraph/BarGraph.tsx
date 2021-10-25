@@ -1,4 +1,4 @@
-import { IResultData, ISelect, ISQL } from "../../pages/result";
+import { IResultData, ISelect, ISQL } from "../../../pages/result";
 import { Bar, Chart } from "react-chartjs-2";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -69,7 +69,6 @@ const ResultBar: React.FC<IResultBarProps> = function ResultBar(props) {
   // }, [dataColumns.length]);
 
   useEffect(() => {
-    console.log("called");
     setChartData({
       labels: props.label ? props.data.map((d) => d[props.label]) : [],
       datasets: props.values.map((v, index) => ({

@@ -11,11 +11,9 @@ export interface ISchemaData {
 }
 
 const faqs = [
-  "asdfasdfsdfsdfsadsdafsd",
-  "asdfasdfsdfsdfsadsdafsadfsdafsd",
-  "asdfasdfsdfsdfsadsdafsadafsd",
-  "asdfasdfsdfsdfsadsdafsadfsdafsd",
-  "asdfasdfsdfsdfsadsdafsadfsdfadsfsdfssdafsd",
+  "Average sale by region",
+  "Total Quantity by Product Name",
+  "Any recommendations",
 ];
 
 const Home = (props: ISchemaData) => {

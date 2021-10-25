@@ -1,7 +1,7 @@
-import { IResultData, ISQL } from "../../pages/result";
+import { IResultData, ISQL } from "../../../pages/result";
 import { Pie } from "react-chartjs-2";
 import React, { useEffect, useState } from "react";
-import { BACKGROUND_COLOR, BORDER_COLOR } from "../ResultBar";
+import { BACKGROUND_COLOR, BORDER_COLOR } from "./BarGraph";
 
 interface IResultPieProps {
   data: IResultData;
