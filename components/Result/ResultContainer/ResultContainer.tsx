@@ -5,7 +5,7 @@ const ResultContainer: React.FC<IResultContainerProps> = ({
 }) => {
   return (
     <div
-      className="flex flex-col justify-start w-full bg-gray-100 h-full p-3"
+      className="flex flex-col justify-start w-full bg-gray-100 h-full p-3 relative"
       {...props}>
       {children}
     </div>

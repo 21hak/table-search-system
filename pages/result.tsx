@@ -15,6 +15,7 @@ import ResultContext, {
   IResultData,
 } from "../context/result-context";
 import SearchInput from "../components/Result/SearchInput/SearchInput";
+import { SelectModal } from "../components/Result/Modal/SelectModal";
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
@@ -47,8 +48,7 @@ const buildWhereFromResult = (wheres: Array<[string, "=" | "<=", string]>) => {
     right: where[2],
   }));
 };
-
-export default function Result() {
+const Result = (props) => {
   const router = useRouter();
   const [nlQuery, setnlQuery] = useState("");
   const [data, setData] = useState<IResultData>([]);
@@ -135,7 +135,6 @@ export default function Result() {
       }}>
       <ResultContainer>
         {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
-        <ResultInterface />
         <ResultContext.Provider
           value={{
             data,
@@ -143,10 +142,14 @@ export default function Result() {
             recommendations,
             setRecommendations,
           }}>
+          <ResultInterface />
+
           <SearchInput />
           {data.length > 0 && <GraphContainer />}
         </ResultContext.Provider>
       </ResultContainer>
     </QueryContext.Provider>
   );
-}
+};
+
+export default Result;

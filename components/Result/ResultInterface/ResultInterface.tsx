@@ -1,6 +1,9 @@
+import ModalContext from "context/modal-context";
+import StoreContext from "context/store-context";
 import { useRouter } from "next/router";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import QueryContext from "../../../context/query-context";
+import { SelectModal } from "../Modal/SelectModal";
 
 interface IResultInterfaceProps {}
 const ResultInterface: React.FC<IResultInterfaceProps> = ({
@@ -12,6 +15,7 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     router.push({ pathname: "/" });
   };
   const { query, setQuery } = useContext(QueryContext);
+  const [selectModalVisibe, setSelectModalVisible] = useState(false);
 
   const onRemoveGroupby = (index: number) => {
     query.groupby.splice(index, 1);
@@ -20,6 +24,10 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     }
     setQuery({ ...query, select: query.select, groupby: query.groupby });
     // setModified(true);
+  };
+
+  const onAddSelect = () => {
+    setSelectModalVisible(true);
   };
 
   return (
@@ -55,6 +63,11 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
                 }`}
               </span>
             ))}
+            <span
+              onClick={onAddSelect}
+              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer">
+              +
+            </span>
           </div>
         </div>
         <div className="flex items-start">
@@ -72,6 +85,9 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
                 {`${where.left}${where.sign}${where.right}`}
               </span>
             ))}
+            <span className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1">
+              +
+            </span>
           </div>
         </div>
         <div className="flex items-start">
@@ -79,11 +95,6 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           <div className="flex flex-wrap items-center">
             {query.groupby.map((groupBy, index) => (
               <span
-                // onClick={() => {
-                //   query.groupby.splice(index, 1);
-                //   setQuery({ ...query, groupby: query.groupby });
-                //   setModified(true);
-                // }}
                 onClick={() => {
                   onRemoveGroupby(index);
                 }}
@@ -92,6 +103,9 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
                 {groupBy}
               </span>
             ))}
+            <span className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1">
+              +
+            </span>
           </div>
         </div>
       </div>
@@ -102,6 +116,15 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           Clear
         </button>
       </div>
+      <ModalContext.Provider
+        value={{
+          selectModal: {
+            visible: selectModalVisibe,
+            setVisible: setSelectModalVisible,
+          },
+        }}>
+        <SelectModal />
+      </ModalContext.Provider>
     </>
   );
 };
