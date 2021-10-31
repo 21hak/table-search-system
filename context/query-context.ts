@@ -8,7 +8,7 @@ export type IWhere = {
 
 export type ISelect = {
   column: string;
-  agg: "NONE" | "MAX" | "MIN";
+  agg: "NONE" | "MAX" | "MIN" | "SUM";
 };
 
 export type IQuery = {

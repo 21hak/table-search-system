@@ -16,6 +16,7 @@ import ResultContext, {
 } from "../context/result-context";
 import SearchInput from "../components/Result/SearchInput/SearchInput";
 import { SelectModal } from "../components/Result/Modal/SelectModal";
+import { autoAction } from "mobx/dist/internal";
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
@@ -85,19 +86,24 @@ const Result = (props) => {
         },
         db_id: dbID,
       };
-      fetchSQLResult(params).then((rst) => {
-        setData(rst.data);
-        setQuery({
-          select: buildSelectFromResult(rst.sql.select),
-          from: rst.sql.from,
-          where: buildWhereFromResult(rst.sql.where),
-          groupby: rst.sql.groupby,
-          joinCondition: rst.sql.join_conditions,
-          orderby: [],
+      if (params.sql.select.length > 0) {
+        fetchSQLResult(params).then((rst) => {
+          setData(rst.data);
+          setQuery({
+            select: buildSelectFromResult(rst.sql.select),
+            from: rst.sql.from,
+            where: buildWhereFromResult(rst.sql.where),
+            groupby: rst.sql.groupby,
+            joinCondition: rst.sql.join_conditions,
+            orderby: [],
+          });
+          setRecommendations(rst.recommendations);
+          setModified(false);
         });
-        setRecommendations(rst.recommendations);
+      } else {
+        setData([]);
         setModified(false);
-      });
+      }
     }
   }, [modified]);
 
@@ -129,6 +135,7 @@ const Result = (props) => {
       value={{
         query,
         setQuery: (query) => {
+          query.select.sort((a, b) => (a.agg === "NONE" ? -1 : 1));
           setQuery({ ...query });
           setModified(true);
         },

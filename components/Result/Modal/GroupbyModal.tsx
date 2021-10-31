@@ -7,46 +7,44 @@ import Autocomplete from "react-autocomplete";
 import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
 
-interface ISelectModalProps {}
-const funcRecommendations = ["MAX", "MIN", "UNIQUE"];
-export const SelectModal: React.FC<ISelectModalProps> = (props) => {
-  const { selectModal } = useContext(ModalContext);
-  const { recommendations } = useContext(ResultContext);
+interface IGroupbyModalProps {}
+
+export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
+  const { groupbyModal } = useContext(ModalContext);
   const { query, setQuery } = useContext(QueryContext);
-  const [select, setSelect] = useState<string>("");
-  const [func, setFunc] = useState<string>("");
+  const [groupby, setGroupby] = useState<string>("");
+  const { recommendations } = useContext(ResultContext);
 
   const onSubmit = () => {
-    query.select.push({
-      column: select,
-      agg: func ? func.toUpperCase() : "NONE",
+    query.groupby.push(groupby);
+    query.select.push({ column: groupby, agg: "NONE" });
+    query.select.forEach((select) => {
+      if (select.agg === "NONE" && !query.groupby.includes(select.column)) {
+        select.agg = "SUM";
+      }
     });
-    setQuery({ ...query, select: query.select });
-    selectModal.setVisible(false);
+    setQuery({ ...query, select: query.select, groupby: query.groupby });
+    groupbyModal.setVisible(false);
   };
 
   return (
     <Modal
       onClose={() => {
-        selectModal.setVisible(false);
+        groupbyModal.setVisible(false);
       }}
       maskClosable={true}
       closable={true}
-      visible={selectModal.visible}>
+      visible={groupbyModal.visible}>
       <div className="p-4 shadow">
         <div className="pb-1">
           <SearchInput
             className="pb-1"
-            placeholder="column"
+            placeholder="groupby"
             recommendations={recommendations}
-            onSelect={(value) => setSelect(value)}
+            onSelect={(value) => setGroupby(value)}
           />
         </div>
-        <SearchInput
-          placeholder="function"
-          recommendations={funcRecommendations}
-          onSelect={(value) => setFunc(value)}
-        />
+
         {/* buttons */}
         <div className="flex justify-between items-center mt-8">
           <button
@@ -59,7 +57,7 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
             type="button"
             className="border border-gray-900 p-1 flex-grow"
             onClick={(e) => {
-              selectModal.setVisible(false);
+              groupbyModal.setVisible(false);
             }}>
             Cancel
           </button>

@@ -3,6 +3,7 @@ import StoreContext from "context/store-context";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import QueryContext from "../../../context/query-context";
+import { GroupbyModal } from "../Modal/GroupbyModal";
 import { SelectModal } from "../Modal/SelectModal";
 
 interface IResultInterfaceProps {}
@@ -16,18 +17,28 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   };
   const { query, setQuery } = useContext(QueryContext);
   const [selectModalVisibe, setSelectModalVisible] = useState(false);
+  const [groupbyModalVisibe, setGroupbyModalVisible] = useState(false);
 
   const onRemoveGroupby = (index: number) => {
+    const pos = query.select.findIndex(
+      (s) => s.column === query.groupby[index]
+    );
+
+    if (pos > -1) query.select.splice(pos, 1);
+
     query.groupby.splice(index, 1);
-    if (query.groupby.length === 0) {
-      query.select.forEach((s) => (s.agg = "NONE"));
-    }
+    // if (query.groupby.length === 0) {
+    //   query.select.forEach((s) => (s.agg = "NONE"));
+    // }
     setQuery({ ...query, select: query.select, groupby: query.groupby });
     // setModified(true);
   };
 
   const onAddSelect = () => {
     setSelectModalVisible(true);
+  };
+  const onGroupbySelect = () => {
+    setGroupbyModalVisible(true);
   };
 
   return (
@@ -103,7 +114,9 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
                 {groupBy}
               </span>
             ))}
-            <span className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1">
+            <span
+              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
+              onClick={onGroupbySelect}>
               +
             </span>
           </div>
@@ -122,8 +135,13 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
             visible: selectModalVisibe,
             setVisible: setSelectModalVisible,
           },
+          groupbyModal: {
+            visible: groupbyModalVisibe,
+            setVisible: setGroupbyModalVisible,
+          },
         }}>
         <SelectModal />
+        <GroupbyModal />
       </ModalContext.Provider>
     </>
   );
