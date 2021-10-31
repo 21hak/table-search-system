@@ -3,6 +3,7 @@ import StoreContext from "context/store-context";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import QueryContext from "../../../context/query-context";
+import { ConditionModal } from "../Modal/ConditionModal";
 import { GroupbyModal } from "../Modal/GroupbyModal";
 import { SelectModal } from "../Modal/SelectModal";
 
@@ -18,6 +19,7 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   const { query, setQuery } = useContext(QueryContext);
   const [selectModalVisibe, setSelectModalVisible] = useState(false);
   const [groupbyModalVisibe, setGroupbyModalVisible] = useState(false);
+  const [conditionModalVisibe, setConditionModalVisible] = useState(false);
 
   const onRemoveGroupby = (index: number) => {
     const pos = query.select.findIndex(
@@ -37,8 +39,11 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   const onAddSelect = () => {
     setSelectModalVisible(true);
   };
-  const onGroupbySelect = () => {
+  const onAddGroupby = () => {
     setGroupbyModalVisible(true);
+  };
+  const onAddConditon = () => {
+    setConditionModalVisible(true);
   };
 
   return (
@@ -92,11 +97,13 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
                   // setModified(true);
                 }}
                 key={`${where.left}${where.sign}${where.right}`}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
-                {`${where.left}${where.sign}${where.right}`}
+                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
+                {`${where.left} ${where.sign} ${where.right}`}
               </span>
             ))}
-            <span className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1">
+            <span
+              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
+              onClick={onAddConditon}>
               +
             </span>
           </div>
@@ -116,7 +123,7 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
             ))}
             <span
               className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
-              onClick={onGroupbySelect}>
+              onClick={onAddGroupby}>
               +
             </span>
           </div>
@@ -139,9 +146,14 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
             visible: groupbyModalVisibe,
             setVisible: setGroupbyModalVisible,
           },
+          conditionModal: {
+            visible: conditionModalVisibe,
+            setVisible: setConditionModalVisible,
+          },
         }}>
         <SelectModal />
         <GroupbyModal />
+        <ConditionModal />
       </ModalContext.Provider>
     </>
   );

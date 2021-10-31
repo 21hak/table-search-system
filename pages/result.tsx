@@ -2,7 +2,7 @@
 import axios from "axios";
 import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import GraphContainer from "../components/Result/ResultGraph/GraphContainer";
 
@@ -17,6 +17,10 @@ import ResultContext, {
 import SearchInput from "../components/Result/SearchInput/SearchInput";
 import { SelectModal } from "../components/Result/Modal/SelectModal";
 import { autoAction } from "mobx/dist/internal";
+import { GetStaticProps } from "next";
+import { ISchemaData } from "pages";
+import { SideBarContext } from "components/Layout";
+import _ from "lodash";
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
@@ -49,7 +53,7 @@ const buildWhereFromResult = (wheres: Array<[string, "=" | "<=", string]>) => {
     right: where[2],
   }));
 };
-const Result = (props) => {
+const Result = (props: ISchemaData) => {
   const router = useRouter();
   const [nlQuery, setnlQuery] = useState("");
   const [data, setData] = useState<IResultData>([]);
@@ -65,10 +69,19 @@ const Result = (props) => {
   });
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
+  const { setSchema } = useContext(SideBarContext);
 
   useEffect(() => {
     if (router.query.nlQuery) setnlQuery(router.query.nlQuery as string);
   }, [router.query]);
+
+  useEffect(() => {
+    setSchema(
+      JSON.parse(
+        JSON.stringify(_.groupBy(props.schema, (data) => data.table_name))
+      )
+    );
+  }, []);
 
   useEffect(() => {
     if (modified) {
@@ -157,6 +170,19 @@ const Result = (props) => {
       </ResultContainer>
     </QueryContext.Provider>
   );
+};
+export const getStaticProps: GetStaticProps = async () => {
+  const data: ISchemaData = await fetch("http://localhost:40011/").then(
+    function (response) {
+      return response.json();
+    }
+  );
+
+  return {
+    props: {
+      schema: data.schema,
+    },
+  };
 };
 
 export default Result;

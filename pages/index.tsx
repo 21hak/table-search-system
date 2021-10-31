@@ -34,6 +34,7 @@ const Home = (props: ISchemaData) => {
       query: { nlQuery: data.query },
     });
   };
+  
   useEffect(() => {
     setSchema(
       JSON.parse(
