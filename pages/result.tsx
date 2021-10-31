@@ -101,6 +101,7 @@ const Result = (props: ISchemaData) => {
       };
       if (params.sql.select.length > 0) {
         fetchSQLResult(params).then((rst) => {
+          // TODO: groupby 순서 변경
           setData(rst.data);
           setQuery({
             select: buildSelectFromResult(rst.sql.select),
@@ -148,7 +149,7 @@ const Result = (props: ISchemaData) => {
       value={{
         query,
         setQuery: (query) => {
-          query.select.sort((a, b) => (a.agg === "NONE" ? -1 : 1));
+          // query.select.sort((a, b) => (a.agg === "NONE" ? -1 : 1));
           setQuery({ ...query });
           setModified(true);
         },

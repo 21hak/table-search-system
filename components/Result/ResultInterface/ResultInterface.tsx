@@ -2,10 +2,12 @@ import ModalContext from "context/modal-context";
 import StoreContext from "context/store-context";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
-import QueryContext from "../../../context/query-context";
+import QueryContext, { ISelect, IWhere } from "../../../context/query-context";
 import { ConditionModal } from "../Modal/ConditionModal";
 import { GroupbyModal } from "../Modal/GroupbyModal";
 import { SelectModal } from "../Modal/SelectModal";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import closePath from "@/public/close.png";
 
 interface IResultInterfaceProps {}
 const ResultInterface: React.FC<IResultInterfaceProps> = ({
@@ -25,7 +27,6 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     const pos = query.select.findIndex(
       (s) => s.column === query.groupby[index]
     );
-
     if (pos > -1) query.select.splice(pos, 1);
 
     query.groupby.splice(index, 1);
@@ -34,6 +35,16 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     // }
     setQuery({ ...query, select: query.select, groupby: query.groupby });
     // setModified(true);
+  };
+
+  const onRemoveSelect = (index: number) => {
+    const pos = query.groupby.findIndex(
+      (g) =>
+        g === query.select[index].column && query.select[index].agg === "NONE"
+    );
+    if (pos > -1) query.groupby.splice(pos, 1);
+    query.select.splice(index, 1);
+    setQuery({ ...query, select: query.select, groupby: query.groupby });
   };
 
   const onAddSelect = () => {
@@ -46,88 +57,131 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     setConditionModalVisible(true);
   };
 
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+  };
+  // const onDragEnd = (result) => {
+  //   // dropped outside the list
+  //   if (!result.destination) {
+  //     return;
+  //   }
+
+  //   const items: any = reorder(
+  //     query.select,
+  //     result.source.index,
+  //     result.destination.index
+  //   );
+  //   setQuery({ ...query, select: items });
+  // };
+
+  const onDragEnd =
+    ({ items, setState }) =>
+    (result) => {
+      if (!result.destination) {
+        return;
+      }
+
+      const newItems: any = reorder(
+        items,
+        result.source.index,
+        result.destination.index
+      );
+      setState(newItems);
+      // setQuery({ ...query, select: items });
+    };
+
+  const onOutputsDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items: any = reorder(
+      query.select,
+      result.source.index,
+      result.destination.index
+    );
+    setQuery({ ...query, select: items });
+  };
+  const onConditionDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
+
+    const items: any = reorder(
+      query.where,
+      result.source.index,
+      result.destination.index
+    );
+    setQuery({ ...query, where: items });
+  };
+
+  const grid = 8;
+
+  const getItemStyle = (isDragging, draggableStyle) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: "none",
+    padding: grid * 2,
+    margin: `0 ${grid}px 0 0`,
+
+    // change background colour if dragging
+    background: isDragging ? "lightgreen" : "grey",
+
+    // styles we need to apply on draggables
+    ...draggableStyle,
+  });
+
+  const getListStyle = (isDraggingOver) => ({
+    background: isDraggingOver ? "lightblue" : "lightgrey",
+    display: "flex",
+    padding: grid,
+    overflow: "auto",
+  });
+
   return (
     <>
       {/* result */}
       <div className="flex flex-col mb-2">
-        <div className="flex items-start">
-          <span className="font-normal w-28 block">Tables</span>
-          <div className="flex flex-wrap items-center">
-            {query.from.map((table) => (
-              <span
-                key={table}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1">
-                {table}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-start">
-          <span className="font-normal w-28 block">Outputs</span>
-          <div className="flex flex-wrap items-center">
-            {query.select.map((select, index) => (
-              <span
-                onClick={() => {
-                  query.select.splice(index, 1);
-                  setQuery({ ...query, select: query.select });
-                  // setModified(true);
-                }}
-                key={`${select.column}${index}}`}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
-                {`${select.column} ${
-                  select.agg !== "NONE" ? `(${select.agg})` : ""
-                }`}
-              </span>
-            ))}
-            <span
-              onClick={onAddSelect}
-              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer">
-              +
-            </span>
-          </div>
-        </div>
-        <div className="flex items-start">
-          <span className="font-normal w-28 block">Conditions</span>
-          <div className="flex flex-wrap items-center">
-            {query.where.map((where, index) => (
-              <span
-                onClick={() => {
-                  query.where.splice(index, 1);
-                  setQuery({ ...query, where: query.where });
-                  // setModified(true);
-                }}
-                key={`${where.left}${where.sign}${where.right}`}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
-                {`${where.left} ${where.sign} ${where.right}`}
-              </span>
-            ))}
-            <span
-              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
-              onClick={onAddConditon}>
-              +
-            </span>
-          </div>
-        </div>
-        <div className="flex items-start">
-          <span className="font-normal w-28 block">GroupBy</span>
-          <div className="flex flex-wrap items-center">
-            {query.groupby.map((groupBy, index) => (
-              <span
-                onClick={() => {
-                  onRemoveGroupby(index);
-                }}
-                key={groupBy}
-                className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
-                {groupBy}
-              </span>
-            ))}
-            <span
-              className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
-              onClick={onAddGroupby}>
-              +
-            </span>
-          </div>
-        </div>
+        <Buttons items={query.from} name="Tables" />
+        <Buttons
+          items={query.select.map(
+            (s) => `${s.column} ${s.agg !== "NONE" ? `(${s.agg})` : ""}`
+          )}
+          name="Outputs"
+          onAdd={onAddSelect}
+          onRemove={onRemoveSelect}
+          onDragEnd={onDragEnd({
+            items: query.select,
+            setState: (items) => {
+              setQuery({ ...query, select: items });
+            },
+          })}
+        />
+        <Buttons
+          items={query.where.map((w) => `${w.left} ${w.sign} ${w.right}`)}
+          name="Conditions"
+          onAdd={onAddConditon}
+          onDragEnd={onDragEnd({
+            items: query.where,
+            setState: (items) => {
+              setQuery({ ...query, where: items });
+            },
+          })}
+        />
+        <Buttons
+          items={query.groupby}
+          name="Groupby"
+          onAdd={onAddGroupby}
+          onDragEnd={onDragEnd({
+            items: query.groupby,
+            setState: (items) => {
+              setQuery({ ...query, groupby: items });
+            },
+          })}
+        />
       </div>
       <div className="flex justify-center mb-2">
         <button
@@ -156,6 +210,110 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
         <ConditionModal />
       </ModalContext.Provider>
     </>
+  );
+};
+
+interface IButtonsProps {
+  name: string;
+  items: Array<string>;
+  onDragEnd?: (result: any) => void;
+  onRemove?: (index: number) => void;
+  onAdd?: () => void;
+}
+const Buttons: React.FC<IButtonsProps> = (props) => {
+  const [visible, setVisible] = useState(false);
+  const onHoverButton = (index) => {};
+  return (
+    <div className="flex items-start">
+      <span className="font-normal w-28 block">{props.name}</span>
+      <DragDropContext onDragEnd={props.onDragEnd ? props.onDragEnd : () => {}}>
+        <Droppable droppableId="droppable" direction="horizontal">
+          {(provided, snapshot) => (
+            <div
+              className="flex flex-wrap items-center"
+              ref={provided.innerRef}
+              // style={getListStyle(snapshot.isDraggingOver)}
+              {...provided.droppableProps}>
+              {props.items.map((item, index) => (
+                <div
+                  className={
+                    "mb-1 mr-1 " + (visible && index == 1 ? "-mr-6" : "")
+                  }>
+                  <Draggable key={item} draggableId={item} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        onMouseEnter={() => setVisible(true)}
+                        onMouseLeave={() => setVisible(false)}
+                        className={
+                          "relative bg-white " +
+                          (visible && index == 1
+                            ? "z-10 border border-gray-400"
+                            : "")
+                        }>
+                        <div
+                          className={
+                            "bg-white inline-block p-1 cursor-pointer select-none " +
+                            (visible && index == 1
+                              ? "-mr-1"
+                              : "border border-gray-400")
+                          }
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}>
+                          {item}
+                        </div>
+                        <span
+                          className={
+                            "w-8 text-center hover:bg-gray-300 cursor-pointer " +
+                            (visible && index == 1 ? "inline-block" : "hidden")
+                          }
+                          onClick={props.onAdd}>
+                          x
+                        </span>
+                        {/* <button
+                          type="button"
+                          className={
+                            "bg-16 bg-close bg-no-repeat bg-center bg-cover w-8 h-4 " +
+                            (visible && index == 1 ? "inline-block" : "hidden")
+                          }></button> */}
+                      </div>
+                    )}
+                  </Draggable>
+                </div>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+      {!!props.onAdd && (
+        <span
+          className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
+          onClick={props.onAdd}>
+          +
+        </span>
+      )}
+    </div>
+    // <div className="flex items-start">
+    //   <span className="font-normal w-28 block">{props.name}</span>
+    //   <div className="flex flex-wrap items-center">
+    //     {props.items.map((item, index) => (
+    //       <span
+    //         onClick={props.onRemove}
+    //         key={item}
+    //         className="bg-white border border-gray-400 inline-block p-1 mr-1 mb-1 cursor-pointer">
+    //         {item}
+    //       </span>
+    //     ))}
+    //     {!!props.onAdd && (
+    //       <span
+    //         className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
+    //         onClick={props.onAdd}>
+    //         +
+    //       </span>
+    //     )}
+    //   </div>
+    // </div>
   );
 };
 

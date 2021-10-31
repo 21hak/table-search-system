@@ -52,7 +52,7 @@ const GraphContainer: React.FC<IGraphContainerProps> = function GraphContainer(
   useEffect(() => {
     if (labelColumns.length) {
       setLabel(labelColumns[0].split(".")[1] ?? labelColumns[0]);
-    }
+    } else setLabel("");
   }, [labelColumns.length]);
 
   useEffect(() => {
