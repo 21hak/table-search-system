@@ -24,7 +24,7 @@ import _ from "lodash";
 
 const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
   return (
-    await axios.post("http://localhost:40011/secondPage", params, {
+    await axios.post("http://localhost:40010/secondPage", params, {
       headers: { "content-type": "application/json" },
     })
   ).data;
@@ -32,7 +32,7 @@ const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
 
 const fetchSQLResult = async (params: any): Promise<INlQueryResult> => {
   return (
-    await axios.post("http://localhost:40011/secondPage", params, {
+    await axios.post("http://localhost:40010/secondPage", params, {
       headers: { "content-type": "application/json" },
     })
   ).data;
@@ -173,7 +173,7 @@ const Result = (props: ISchemaData) => {
   );
 };
 export const getStaticProps: GetStaticProps = async () => {
-  const data: ISchemaData = await fetch("http://localhost:40011/").then(
+  const data: ISchemaData = await fetch("http://localhost:40010/").then(
     function (response) {
       return response.json();
     }

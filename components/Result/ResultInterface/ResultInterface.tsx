@@ -175,6 +175,7 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           items={query.groupby}
           name="Groupby"
           onAdd={onAddGroupby}
+          onRemove={onRemoveGroupby}
           onDragEnd={onDragEnd({
             items: query.groupby,
             setState: (items) => {
@@ -221,8 +222,10 @@ interface IButtonsProps {
   onAdd?: () => void;
 }
 const Buttons: React.FC<IButtonsProps> = (props) => {
-  const [visible, setVisible] = useState(false);
-  const onHoverButton = (index) => {};
+  const [removable, setRemovable] = useState<number | null>(null);
+  const onHoverButton = (index) => {
+    props.onRemove && setRemovable(index);
+  };
   return (
     <div className="flex items-start">
       <span className="font-normal w-28 block">{props.name}</span>
@@ -237,23 +240,23 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
               {props.items.map((item, index) => (
                 <div
                   className={
-                    "mb-1 mr-1 " + (visible && index == 1 ? "-mr-6" : "")
+                    "mb-1 mr-1 " + (index === removable ? "-mr-6" : "")
                   }>
                   <Draggable key={item} draggableId={item} index={index}>
                     {(provided, snapshot) => (
                       <div
-                        onMouseEnter={() => setVisible(true)}
-                        onMouseLeave={() => setVisible(false)}
+                        onMouseEnter={() => onHoverButton(index)}
+                        onMouseLeave={() => setRemovable(null)}
                         className={
                           "relative bg-white " +
-                          (visible && index == 1
+                          (index === removable
                             ? "z-10 border border-gray-400"
                             : "")
                         }>
                         <div
                           className={
                             "bg-white inline-block p-1 cursor-pointer select-none " +
-                            (visible && index == 1
+                            (index === removable
                               ? "-mr-1"
                               : "border border-gray-400")
                           }
@@ -265,9 +268,11 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
                         <span
                           className={
                             "w-8 text-center hover:bg-gray-300 cursor-pointer " +
-                            (visible && index == 1 ? "inline-block" : "hidden")
+                            (index === removable ? "inline-block" : "hidden")
                           }
-                          onClick={props.onAdd}>
+                          onClick={() => {
+                            props.onRemove(index);
+                          }}>
                           x
                         </span>
                         {/* <button

@@ -34,7 +34,7 @@ const Home = (props: ISchemaData) => {
       query: { nlQuery: data.query },
     });
   };
-  
+
   useEffect(() => {
     setSchema(
       JSON.parse(
@@ -75,7 +75,7 @@ const Home = (props: ISchemaData) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const data: ISchemaData = await fetch("http://localhost:40011/").then(
+  const data: ISchemaData = await fetch("http://localhost:40010/").then(
     function (response) {
       return response.json();
     }
