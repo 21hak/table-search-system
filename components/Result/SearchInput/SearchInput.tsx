@@ -1,4 +1,5 @@
-import { useContext, useState } from "react";
+import { useRouter } from "next/router";
+import { HTMLProps, useContext, useEffect, useState } from "react";
 import Autocomplete from "react-autocomplete";
 import { useForm } from "react-hook-form";
 import QueryContext from "../../../context/query-context";
@@ -6,9 +7,12 @@ import ResultContext from "../../../context/result-context";
 import { matchColumn } from "../../../utils";
 interface ISearchInputProps {}
 const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
-  const { query, setQuery } = useContext(QueryContext);
+  const { query, setQuery, nlQuery, setNlQuery, rawQuery } =
+    useContext(QueryContext);
+  const router = useRouter();
   const { recommendations } = useContext(ResultContext);
-  const [input, setInput] = useState("");
+  const [tempNlQuery, setTempNlQuery] = useState(nlQuery);
+  const [tempRawQuery, setTempRawQuery] = useState(rawQuery);
   const {
     register,
     handleSubmit,
@@ -17,57 +21,83 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
     formState: { errors },
   } = useForm();
 
-  const onSelect = (data: any) => {
-    query.select.push({ column: data, agg: "NONE" });
-    setQuery({ ...query, select: query.select });
-  };
-
   return (
     // {/* input */}
-    <div className="flex border border-gray-500 rounded w-full bg-white">
-      <Autocomplete
-        {...register("query", {
-          validate: (value) => value !== "",
-        })}
-        value={input}
-        inputProps={{
-          id: "states-autocomplete",
-          className: "focus:outline-none p-1 rounded-l w-full",
-        }}
-        wrapperStyle={{
-          position: "relative",
-          display: "inline-block",
-          flexGrow: 1,
-          zIndex: 1,
-        }}
-        items={recommendations}
-        getItemValue={(item: any) => item}
-        shouldItemRender={matchColumn}
-        // sortItems={sortStates}
-        onChange={(event, value) => setInput(value)}
-        onSelect={onSelect}
-        renderMenu={(children) => (
-          <div className="absolute box-border border border-gray-300 bg-indigo-50">
-            {children}
-          </div>
-        )}
-        renderItem={(item: any, isHighlighted: boolean) => (
-          <div
-            className={`p-1 cursor-pointer ${
-              isHighlighted ? "text-white bg-blue-600" : ""
-            }`}
-            key={item}>
-            {item}
-          </div>
-        )}
-      />
-      <button
-        className="bg-blue-600 text-white m-0.5 pr-1 pl-1 rounded"
-        onClick={() => onSelect(input)}>
-        Enter
-      </button>
+    <div className="flex  w-full">
+      <div className="mr-4 w-full">
+        <QueryArea
+          value={tempNlQuery}
+          placeholder="Natural Language"
+          defaultValue={tempNlQuery}
+          onChange={(e) => setTempNlQuery(e.target.value)}
+        />
+        <div className="flex justify-end mt-1">
+          <button
+            onClick={() => {
+              router.push(
+                {
+                  pathname: "/result",
+                  query: { nlQuery: tempNlQuery },
+                },
+                undefined,
+                { shallow: true }
+              );
+            }}
+            type="button"
+            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
+            Execute
+          </button>
+          <button
+            onClick={() => {
+              setTempNlQuery("");
+            }}
+            type="button"
+            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
+            Clear
+          </button>
+        </div>
+      </div>
+      <div className="w-full">
+        <QueryArea
+          placeholder="Raw Query"
+          value={tempRawQuery}
+          defaultValue={tempRawQuery}
+          onChange={(e) => setTempRawQuery(e.target.value)}
+        />
+        <div className="flex justify-end mt-1">
+          <button
+            onClick={() => {
+              console.log("Raw query Executed");
+            }}
+            type="button"
+            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
+            Execute
+          </button>
+          <button
+            onClick={() => {
+              setTempRawQuery("");
+            }}
+            type="button"
+            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
+            Clear
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default SearchInput;
+
+interface ITextArea extends HTMLProps<HTMLTextAreaElement> {}
+const QueryArea: React.FC<ITextArea> = (props) => {
+  return (
+    <div className="w-full bg-white border border-gray-500 p-2 h-24">
+      <textarea
+        {...props}
+        defaultValue={props.defaultValue}
+        className="w-full h-full focus:outline-none resize-none"
+      />
+    </div>
+  );
+};

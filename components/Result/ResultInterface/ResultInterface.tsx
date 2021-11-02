@@ -239,10 +239,11 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
               {...provided.droppableProps}>
               {props.items.map((item, index) => (
                 <div
+                  key={item}
                   className={
                     "mb-1 mr-1 " + (index === removable ? "-mr-6" : "")
                   }>
-                  <Draggable key={item} draggableId={item} index={index}>
+                  <Draggable draggableId={item} index={index}>
                     {(provided, snapshot) => (
                       <div
                         onMouseEnter={() => onHoverButton(index)}

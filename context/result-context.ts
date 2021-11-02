@@ -15,6 +15,7 @@ export type INlQueryResult = {
   sql: IResultSQL;
   db_id: string;
   recommendations: string[];
+  raw_sql: string;
 };
 interface IResultContext {
   data: IResultData;

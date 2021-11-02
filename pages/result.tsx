@@ -3,7 +3,7 @@ import axios from "axios";
 import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+
 import GraphContainer from "../components/Result/ResultGraph/GraphContainer";
 
 import { matchColumn } from "../utils";
@@ -17,7 +17,7 @@ import ResultContext, {
 import SearchInput from "../components/Result/SearchInput/SearchInput";
 import { SelectModal } from "../components/Result/Modal/SelectModal";
 import { autoAction } from "mobx/dist/internal";
-import { GetStaticProps } from "next";
+import { GetServerSideProps, GetStaticProps } from "next";
 import { ISchemaData } from "pages";
 import { SideBarContext } from "components/Layout";
 import _ from "lodash";
@@ -55,7 +55,8 @@ const buildWhereFromResult = (wheres: Array<[string, "=" | "<=", string]>) => {
 };
 const Result = (props: ISchemaData) => {
   const router = useRouter();
-  const [nlQuery, setnlQuery] = useState("");
+  const [nlQuery, setNlQuery] = useState("");
+  const [rawQuery, setRawQuery] = useState("");
   const [data, setData] = useState<IResultData>([]);
   const [modified, setModified] = useState(false);
   const [dbID, setDbID] = useState("");
@@ -72,7 +73,7 @@ const Result = (props: ISchemaData) => {
   const { setSchema } = useContext(SideBarContext);
 
   useEffect(() => {
-    if (router.query.nlQuery) setnlQuery(router.query.nlQuery as string);
+    if (router.query.nlQuery) setNlQuery(router.query.nlQuery as string);
   }, [router.query]);
 
   useEffect(() => {
@@ -112,6 +113,7 @@ const Result = (props: ISchemaData) => {
             orderby: [],
           });
           setRecommendations(rst.recommendations);
+          setRawQuery(rst.raw_sql);
           setModified(false);
         });
       } else {
@@ -138,7 +140,7 @@ const Result = (props: ISchemaData) => {
           joinCondition: rst.sql.join_conditions,
           orderby: [],
         });
-
+        setRawQuery(rst.raw_sql);
         setRecommendations(rst.recommendations);
       });
     }
@@ -153,6 +155,10 @@ const Result = (props: ISchemaData) => {
           setQuery({ ...query });
           setModified(true);
         },
+        nlQuery,
+        setNlQuery,
+        rawQuery,
+        setRawQuery,
       }}>
       <ResultContainer>
         {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}

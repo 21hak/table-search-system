@@ -22,6 +22,10 @@ export type IQuery = {
 interface IQueryContext {
   query: IQuery;
   setQuery: (query: IQuery) => void;
+  nlQuery: string;
+  setNlQuery: (nlQuery: string) => void;
+  rawQuery: string;
+  setRawQuery: (rawQuery: string) => void;
   // modified: boolean;
   // setModified: (modified: boolean) => void;
 }
