@@ -1,11 +1,10 @@
-import { IResultData, ISQL } from "../../../pages/result";
 import { Pie } from "react-chartjs-2";
 import React, { useEffect, useState } from "react";
 import { BACKGROUND_COLOR, BORDER_COLOR } from "./BarGraph";
+import { IResultData } from "context/result-context";
 
 interface IResultPieProps {
   data: IResultData;
-  sql: ISQL;
   label: string;
   value: string;
 }

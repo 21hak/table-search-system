@@ -25,7 +25,6 @@ const Home = (props: ISchemaData) => {
     formState: { errors },
   } = useForm();
   const router = useRouter();
-  const [scheme, setScheme] = useState<any>();
   const { setSchema } = useContext(SideBarContext);
 
   const onSubmit = (data: any) => {

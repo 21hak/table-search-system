@@ -12,16 +12,22 @@ const signRecommendations = ["=", ">=", "<="];
 export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
   const { conditionModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);
-  const { query, setQuery } = useContext(QueryContext);
+  const { query, postSQL } = useContext(QueryContext);
   const [column, setColumn] = useState<string>("");
-  const [sign, setSign] = useState<"=" | "<=">("=");
-
+  const [sign, setSign] = useState<"=" | "<=" | ">=" | "">("");
   const [value, setValue] = useState<any>();
 
   const onSubmit = () => {
-    query.where.push({ left: column, sign: sign, right: value });
-    setQuery({ ...query, select: query.select });
-    conditionModal.setVisible(false);
+    if (sign) {
+      const c = query.where.concat([
+        { left: column, sign: sign, right: value },
+      ]);
+      setColumn("");
+      setSign("");
+      setValue("");
+      postSQL({ ...query, where: c });
+      conditionModal.setVisible(false);
+    }
   };
 
   return (
@@ -38,7 +44,8 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
             className="pb-1"
             placeholder="column"
             recommendations={recommendations}
-            onSelect={(value) => setColumn(value)}
+            value={column}
+            onChange={(value) => setColumn(value)}
           />
         </div>
         <div className="pb-1">
@@ -46,13 +53,15 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
             className="pb-1"
             placeholder="sign"
             recommendations={signRecommendations}
-            onSelect={(value) => setSign(value)}
+            value={sign}
+            onChange={(value) => setSign(value)}
           />
         </div>
         <SearchInput
           placeholder="value"
           recommendations={[]}
-          onSelect={(value) => setValue(value)}
+          value={value}
+          onChange={(value) => setValue(value)}
         />
         {/* buttons */}
         <div className="flex justify-between items-center mt-8">
@@ -78,23 +87,18 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
 
 interface ISearchInputProps extends HTMLProps<HTMLInputElement> {
   recommendations: string[];
-  onSelect: (value: any) => void;
+  value: string;
+  onChange: (value: any) => void;
 }
 
 const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
-  ({ children, recommendations, onSelect, ...props }, ref) => {
-    const [input, setInput] = useState("");
-
-    useEffect(() => {
-      onSelect(input);
-    }, [input]);
-
+  ({ children, recommendations, onChange, value, ...props }, ref) => {
     return (
       // {/* input */}
       <div className="flex border border-gray-500 w-full bg-white">
         <Autocomplete
           ref={ref}
-          value={input}
+          value={value}
           inputProps={{
             ...props,
             id: "states-autocomplete",
@@ -110,8 +114,8 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
           getItemValue={(item: any) => item}
           shouldItemRender={matchColumn}
           // sortItems={sortStates}
-          onChange={(event, value) => setInput(value)}
-          onSelect={setInput}
+          onChange={(event, value) => onChange(value)}
+          onSelect={onChange}
           renderMenu={(children) => (
             <div className="absolute box-border border border-gray-300 bg-indigo-50">
               {children}

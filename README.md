@@ -23,3 +23,21 @@ yarn run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+{
+  "schema": [
+    {
+      "table_name": "suppliers",
+      "column_name": "supplier_id"
+    },
+    {
+      "table_name": "suppliers",
+      "column_name": "supplier_name"
+    },
+    {
+      "table_name": "suppliers",
+      "column_name": "contact_name"
+    }
+    ]
+}

@@ -2,7 +2,7 @@ import React from "react";
 
 export type IWhere = {
   left: string;
-  sign: "=" | "<=";
+  sign: "=" | "<=" | ">=";
   right: string | number;
 };
 
@@ -26,6 +26,8 @@ interface IQueryContext {
   setNlQuery: (nlQuery: string) => void;
   rawQuery: string;
   setRawQuery: (rawQuery: string) => void;
+  postSQL: (params: IQuery) => Promise<void>;
+  getNlQuery: (params: any) => void;
   // modified: boolean;
   // setModified: (modified: boolean) => void;
 }

@@ -7,65 +7,27 @@ import Autocomplete from "react-autocomplete";
 import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
 
-interface ISelectModalProps {}
-const funcRecommendations = ["MAX", "MIN", "UNIQUE"];
-export const SelectModal: React.FC<ISelectModalProps> = (props) => {
-  const { selectModal } = useContext(ModalContext);
-  const { recommendations } = useContext(ResultContext);
-  const { query, postSQL } = useContext(QueryContext);
-  const [select, setSelect] = useState<string>("");
-  const [func, setFunc] = useState<string>("");
+interface IErrorModalProps {}
 
-  const onSubmit = () => {
-    const s = query.select.concat([
-      {
-        column: select,
-        agg: func ? func.toUpperCase() : "NONE",
-      },
-    ]);
-    setSelect("");
-    setFunc("");
-    postSQL({ ...query, select: s });
-    selectModal.setVisible(false);
-  };
-
+export const ErrorModal: React.FC<IErrorModalProps> = (props) => {
+  const { errorModal } = useContext(ModalContext);
   return (
     <Modal
       onClose={() => {
-        selectModal.setVisible(false);
+        errorModal.setVisible(false);
       }}
       maskClosable={true}
       closable={true}
-      visible={selectModal.visible}>
-      <div className="p-4 shadow">
-        <div className="pb-1">
-          <SearchInput
-            className="pb-1"
-            placeholder="column"
-            recommendations={recommendations}
-            value={select}
-            onChange={(value) => setSelect(value)}
-          />
-        </div>
-        <SearchInput
-          placeholder="function"
-          recommendations={funcRecommendations}
-          value={func}
-          onChange={(value) => setFunc(value)}
-        />
+      visible={errorModal.visible}>
+      <div className="p-2 shadow">
         {/* buttons */}
+        <div className="">Invalid Query!!</div>
         <div className="flex justify-between items-center mt-8">
-          <button
-            type="button"
-            className="border border-gray-900 p-1 flex-grow mr-2"
-            onClick={onSubmit}>
-            Search
-          </button>
           <button
             type="button"
             className="border border-gray-900 p-1 flex-grow"
             onClick={(e) => {
-              selectModal.setVisible(false);
+              errorModal.setVisible(false);
             }}>
             Cancel
           </button>
@@ -77,18 +39,23 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
 
 interface ISearchInputProps extends HTMLProps<HTMLInputElement> {
   recommendations: string[];
-  value: string;
   onChange: (value: any) => void;
 }
 
 const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
-  ({ children, recommendations, onChange, value, ...props }, ref) => {
+  ({ children, recommendations, onChange: onSelect, ...props }, ref) => {
+    const [input, setInput] = useState("");
+
+    useEffect(() => {
+      onSelect(input);
+    }, [input]);
+
     return (
       // {/* input */}
       <div className="flex border border-gray-500 w-full bg-white">
         <Autocomplete
           ref={ref}
-          value={value}
+          value={input}
           inputProps={{
             ...props,
             id: "states-autocomplete",
@@ -104,8 +71,8 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
           getItemValue={(item: any) => item}
           shouldItemRender={matchColumn}
           // sortItems={sortStates}
-          onChange={(event, value) => onChange(value)}
-          onSelect={onChange}
+          onChange={(event, value) => setInput(value)}
+          onSelect={setInput}
           renderMenu={(children) => (
             <div className="absolute box-border border border-gray-300 bg-indigo-50">
               {children}

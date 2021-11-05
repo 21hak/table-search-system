@@ -7,8 +7,7 @@ import ResultContext from "../../../context/result-context";
 import { matchColumn } from "../../../utils";
 interface ISearchInputProps {}
 const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
-  const { query, setQuery, nlQuery, setNlQuery, rawQuery } =
-    useContext(QueryContext);
+  const { nlQuery, setNlQuery, rawQuery } = useContext(QueryContext);
   const router = useRouter();
   const { recommendations } = useContext(ResultContext);
   const [tempNlQuery, setTempNlQuery] = useState(nlQuery);
@@ -21,6 +20,18 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    if (nlQuery) {
+      setTempNlQuery(nlQuery);
+      setTempRawQuery(rawQuery);
+    }
+  }, [nlQuery]);
+
+  useEffect(() => {
+    if (rawQuery) {
+      setTempRawQuery(rawQuery);
+    }
+  }, [rawQuery]);
   return (
     // {/* input */}
     <div className="flex  w-full">
@@ -28,7 +39,6 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
         <QueryArea
           value={tempNlQuery}
           placeholder="Natural Language"
-          defaultValue={tempNlQuery}
           onChange={(e) => setTempNlQuery(e.target.value)}
         />
         <div className="flex justify-end mt-1">
@@ -61,7 +71,6 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
         <QueryArea
           placeholder="Raw Query"
           value={tempRawQuery}
-          defaultValue={tempRawQuery}
           onChange={(e) => setTempRawQuery(e.target.value)}
         />
         <div className="flex justify-end mt-1">
@@ -95,7 +104,6 @@ const QueryArea: React.FC<ITextArea> = (props) => {
     <div className="w-full bg-white border border-gray-500 p-2 h-24">
       <textarea
         {...props}
-        defaultValue={props.defaultValue}
         className="w-full h-full focus:outline-none resize-none"
       />
     </div>

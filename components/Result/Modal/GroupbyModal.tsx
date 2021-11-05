@@ -11,19 +11,20 @@ interface IGroupbyModalProps {}
 
 export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
   const { groupbyModal } = useContext(ModalContext);
-  const { query, setQuery } = useContext(QueryContext);
+  const { query, postSQL } = useContext(QueryContext);
   const [groupby, setGroupby] = useState<string>("");
   const { recommendations } = useContext(ResultContext);
 
   const onSubmit = () => {
-    query.groupby.push(groupby);
-    query.select.push({ column: groupby, agg: "NONE" });
-    query.select.forEach((select) => {
-      if (select.agg === "NONE" && !query.groupby.includes(select.column)) {
+    const g = query.groupby.concat([groupby]);
+    const s = query.select.concat([{ column: groupby, agg: "NONE" }]);
+    s.forEach((select) => {
+      if (select.agg === "NONE" && !g.includes(select.column)) {
         select.agg = "SUM";
       }
     });
-    setQuery({ ...query, select: query.select, groupby: query.groupby });
+    setGroupby("");
+    postSQL({ ...query, select: s, groupby: g });
     groupbyModal.setVisible(false);
   };
 
@@ -41,7 +42,8 @@ export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
             className="pb-1"
             placeholder="groupby"
             recommendations={recommendations}
-            onSelect={(value) => setGroupby(value)}
+            value={groupby}
+            onChange={(value) => setGroupby(value)}
           />
         </div>
 
@@ -69,23 +71,18 @@ export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
 
 interface ISearchInputProps extends HTMLProps<HTMLInputElement> {
   recommendations: string[];
-  onSelect: (value: any) => void;
+  onChange: (value: any) => void;
+  value: string;
 }
 
 const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
-  ({ children, recommendations, onSelect, ...props }, ref) => {
-    const [input, setInput] = useState("");
-
-    useEffect(() => {
-      onSelect(input);
-    }, [input]);
-
+  ({ children, recommendations, onChange, value, ...props }, ref) => {
     return (
       // {/* input */}
       <div className="flex border border-gray-500 w-full bg-white">
         <Autocomplete
           ref={ref}
-          value={input}
+          value={value}
           inputProps={{
             ...props,
             id: "states-autocomplete",
@@ -101,8 +98,8 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
           getItemValue={(item: any) => item}
           shouldItemRender={matchColumn}
           // sortItems={sortStates}
-          onChange={(event, value) => setInput(value)}
-          onSelect={setInput}
+          onChange={(event, value) => onChange(value)}
+          onSelect={onChange}
           renderMenu={(children) => (
             <div className="absolute box-border border border-gray-300 bg-indigo-50">
               {children}

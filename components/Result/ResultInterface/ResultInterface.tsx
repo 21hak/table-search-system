@@ -1,13 +1,12 @@
 import ModalContext from "context/modal-context";
 import StoreContext from "context/store-context";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import QueryContext, { ISelect, IWhere } from "../../../context/query-context";
-import { ConditionModal } from "../Modal/ConditionModal";
-import { GroupbyModal } from "../Modal/GroupbyModal";
-import { SelectModal } from "../Modal/SelectModal";
+
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import closePath from "@/public/close.png";
+import { ErrorModal } from "../Modal/ErrorModal";
 
 interface IResultInterfaceProps {}
 const ResultInterface: React.FC<IResultInterfaceProps> = ({
@@ -18,23 +17,25 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   const onClear = () => {
     router.push({ pathname: "/" });
   };
-  const { query, setQuery } = useContext(QueryContext);
-  const [selectModalVisibe, setSelectModalVisible] = useState(false);
-  const [groupbyModalVisibe, setGroupbyModalVisible] = useState(false);
-  const [conditionModalVisibe, setConditionModalVisible] = useState(false);
+  const { query, postSQL } = useContext(QueryContext);
+  const { selectModal, groupbyModal, conditionModal } =
+    useContext(ModalContext);
 
   const onRemoveGroupby = (index: number) => {
     const pos = query.select.findIndex(
       (s) => s.column === query.groupby[index]
     );
-    if (pos > -1) query.select.splice(pos, 1);
 
-    query.groupby.splice(index, 1);
-    // if (query.groupby.length === 0) {
-    //   query.select.forEach((s) => (s.agg = "NONE"));
-    // }
-    setQuery({ ...query, select: query.select, groupby: query.groupby });
-    // setModified(true);
+    postSQL({
+      ...query,
+      ...(pos > -1 && {
+        select: [...query.select.slice(0, pos), ...query.select.slice(pos + 1)],
+      }),
+      groupby: [
+        ...query.groupby.slice(0, index),
+        ...query.groupby.slice(index + 1),
+      ],
+    });
   };
 
   const onRemoveSelect = (index: number) => {
@@ -42,19 +43,30 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
       (g) =>
         g === query.select[index].column && query.select[index].agg === "NONE"
     );
-    if (pos > -1) query.groupby.splice(pos, 1);
-    query.select.splice(index, 1);
-    setQuery({ ...query, select: query.select, groupby: query.groupby });
+
+    postSQL({
+      ...query,
+      select: [
+        ...query.select.slice(0, index),
+        ...query.select.slice(index + 1),
+      ],
+      ...(pos > -1 && {
+        groupby: [
+          ...query.groupby.slice(0, pos),
+          ...query.groupby.slice(pos + 1),
+        ],
+      }),
+    });
   };
 
   const onAddSelect = () => {
-    setSelectModalVisible(true);
+    selectModal.setVisible(true);
   };
   const onAddGroupby = () => {
-    setGroupbyModalVisible(true);
+    groupbyModal.setVisible(true);
   };
   const onAddConditon = () => {
-    setConditionModalVisible(true);
+    conditionModal.setVisible(true);
   };
 
   const reorder = (list, startIndex, endIndex) => {
@@ -64,23 +76,10 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
 
     return result;
   };
-  // const onDragEnd = (result) => {
-  //   // dropped outside the list
-  //   if (!result.destination) {
-  //     return;
-  //   }
-
-  //   const items: any = reorder(
-  //     query.select,
-  //     result.source.index,
-  //     result.destination.index
-  //   );
-  //   setQuery({ ...query, select: items });
-  // };
 
   const onDragEnd =
     ({ items, setState }) =>
-    (result) => {
+    async (result) => {
       if (!result.destination) {
         return;
       }
@@ -90,56 +89,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
         result.source.index,
         result.destination.index
       );
-      setState(newItems);
-      // setQuery({ ...query, select: items });
+      await setState(newItems);
     };
-
-  const onOutputsDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
-
-    const items: any = reorder(
-      query.select,
-      result.source.index,
-      result.destination.index
-    );
-    setQuery({ ...query, select: items });
-  };
-  const onConditionDragEnd = (result) => {
-    if (!result.destination) {
-      return;
-    }
-
-    const items: any = reorder(
-      query.where,
-      result.source.index,
-      result.destination.index
-    );
-    setQuery({ ...query, where: items });
-  };
-
-  const grid = 8;
-
-  const getItemStyle = (isDragging, draggableStyle) => ({
-    // some basic styles to make the items look a bit nicer
-    userSelect: "none",
-    padding: grid * 2,
-    margin: `0 ${grid}px 0 0`,
-
-    // change background colour if dragging
-    background: isDragging ? "lightgreen" : "grey",
-
-    // styles we need to apply on draggables
-    ...draggableStyle,
-  });
-
-  const getListStyle = (isDraggingOver) => ({
-    background: isDraggingOver ? "lightblue" : "lightgrey",
-    display: "flex",
-    padding: grid,
-    overflow: "auto",
-  });
 
   return (
     <>
@@ -155,8 +106,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           onRemove={onRemoveSelect}
           onDragEnd={onDragEnd({
             items: query.select,
-            setState: (items) => {
-              setQuery({ ...query, select: items });
+            setState: async (items) => {
+              postSQL({ ...query, select: items });
             },
           })}
         />
@@ -166,8 +117,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           onAdd={onAddConditon}
           onDragEnd={onDragEnd({
             items: query.where,
-            setState: (items) => {
-              setQuery({ ...query, where: items });
+            setState: async (items) => {
+              postSQL({ ...query, where: items });
             },
           })}
         />
@@ -178,8 +129,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           onRemove={onRemoveGroupby}
           onDragEnd={onDragEnd({
             items: query.groupby,
-            setState: (items) => {
-              setQuery({ ...query, groupby: items });
+            setState: async (items) => {
+              postSQL({ ...query, groupby: items });
             },
           })}
         />
@@ -191,25 +142,6 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           Clear
         </button>
       </div>
-      <ModalContext.Provider
-        value={{
-          selectModal: {
-            visible: selectModalVisibe,
-            setVisible: setSelectModalVisible,
-          },
-          groupbyModal: {
-            visible: groupbyModalVisibe,
-            setVisible: setGroupbyModalVisible,
-          },
-          conditionModal: {
-            visible: conditionModalVisibe,
-            setVisible: setConditionModalVisible,
-          },
-        }}>
-        <SelectModal />
-        <GroupbyModal />
-        <ConditionModal />
-      </ModalContext.Provider>
     </>
   );
 };
@@ -226,6 +158,7 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
   const onHoverButton = (index) => {
     props.onRemove && setRemovable(index);
   };
+
   return (
     <div className="flex items-start">
       <span className="font-normal w-28 block">{props.name}</span>

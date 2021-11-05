@@ -1,10 +1,9 @@
-import { IResultData, ISelect, ISQL } from "../../../pages/result";
 import { Bar, Chart } from "react-chartjs-2";
 import React, { useEffect, useRef, useState } from "react";
+import { IResultData } from "context/result-context";
 
 interface IResultBarProps {
   data: IResultData;
-  sql: ISQL;
   label: string;
   values: string[];
 }

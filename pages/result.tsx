@@ -1,8 +1,7 @@
 // printed-books/:book-id
 import axios from "axios";
-import { clamp, groupBy } from "lodash";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 
 import GraphContainer from "../components/Result/ResultGraph/GraphContainer";
 
@@ -21,38 +20,14 @@ import { GetServerSideProps, GetStaticProps } from "next";
 import { ISchemaData } from "pages";
 import { SideBarContext } from "components/Layout";
 import _ from "lodash";
+import qs from "querystring";
+import { GroupbyModal } from "components/Result/Modal/GroupbyModal";
+import { ConditionModal } from "components/Result/Modal/ConditionModal";
+import { ErrorModal } from "components/Result/Modal/ErrorModal";
+import ModalContext from "context/modal-context";
+import { fetchNlQueryResult, fetchSQLResult } from "api";
+import { buildSelectFromResult, buildWhereFromResult } from "utils/helper";
 
-const fetchNlQueryResult = async (params: any): Promise<INlQueryResult> => {
-  return (
-    await axios.post("http://localhost:40010/secondPage", params, {
-      headers: { "content-type": "application/json" },
-    })
-  ).data;
-};
-
-const fetchSQLResult = async (params: any): Promise<INlQueryResult> => {
-  return (
-    await axios.post("http://localhost:40010/secondPage", params, {
-      headers: { "content-type": "application/json" },
-    })
-  ).data;
-};
-
-const buildSelectFromResult = (
-  selects: Array<["NONE" | "MAX" | "MIN", string]>
-): ISelect[] => {
-  return selects.map((select) => ({
-    column: select[1],
-    agg: select[0],
-  }));
-};
-const buildWhereFromResult = (wheres: Array<[string, "=" | "<=", string]>) => {
-  return wheres.map((where) => ({
-    left: where[0],
-    sign: where[1],
-    right: where[2],
-  }));
-};
 const Result = (props: ISchemaData) => {
   const router = useRouter();
   const [nlQuery, setNlQuery] = useState("");
@@ -71,9 +46,15 @@ const Result = (props: ISchemaData) => {
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const { setSchema } = useContext(SideBarContext);
+  const [selectModalVisibe, setSelectModalVisible] = useState(false);
+  const [groupbyModalVisibe, setGroupbyModalVisible] = useState(false);
+  const [conditionModalVisibe, setConditionModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   useEffect(() => {
-    if (router.query.nlQuery) setNlQuery(router.query.nlQuery as string);
+    if (router.query.nlQuery) {
+      setNlQuery(router.query.nlQuery as string);
+    }
   }, [router.query]);
 
   useEffect(() => {
@@ -84,25 +65,23 @@ const Result = (props: ISchemaData) => {
     );
   }, []);
 
-  useEffect(() => {
-    if (modified) {
-      const params = {
+  const postSQL = useCallback(
+    async (params: IQuery) => {
+      fetchSQLResult({
         sql: {
-          select: query.select.map((select) => [select.agg, select.column]),
-          from: query.from,
-          where: query.where.map((where) => [
+          select: params.select.map((select) => [select.agg, select.column]),
+          from: params.from,
+          where: params.where.map((where) => [
             where.left,
             where.sign,
             where.right,
           ]),
-          groupby: query.groupby,
-          join_conditions: query.joinCondition,
+          groupby: params.groupby,
+          join_conditions: params.joinCondition,
         },
         db_id: dbID,
-      };
-      if (params.sql.select.length > 0) {
-        fetchSQLResult(params).then((rst) => {
-          // TODO: groupby 순서 변경
+      })
+        .then((rst) => {
           setData(rst.data);
           setQuery({
             select: buildSelectFromResult(rst.sql.select),
@@ -115,21 +94,16 @@ const Result = (props: ISchemaData) => {
           setRecommendations(rst.recommendations);
           setRawQuery(rst.raw_sql);
           setModified(false);
+        })
+        .catch((e) => {
+          setErrorModalVisible(true);
         });
-      } else {
-        setData([]);
-        setModified(false);
-      }
-    }
-  }, [modified]);
-
-  useEffect(() => {
-    if (nlQuery) {
-      const params = {
-        nlQuery: nlQuery,
-      };
-      // or:
-      fetchNlQueryResult(params).then((rst) => {
+    },
+    [dbID]
+  );
+  const getNlQuery = async (params: { nlQuery: string }) => {
+    fetchNlQueryResult(params)
+      .then((rst) => {
         setDbID(rst.db_id);
         setData(rst.data);
         setQuery({
@@ -142,39 +116,137 @@ const Result = (props: ISchemaData) => {
         });
         setRawQuery(rst.raw_sql);
         setRecommendations(rst.recommendations);
+      })
+      .catch((e) => {
+        setErrorModalVisible(true);
       });
+  };
+  useEffect(() => {
+    if (nlQuery) {
+      getNlQuery({ nlQuery: nlQuery });
     }
   }, [nlQuery]);
+
+  // useEffect(() => {
+  //   if (modified) {
+  //     const params = {
+  //       sql: {
+  //         select: query.select.map((select) => [select.agg, select.column]),
+  //         from: query.from,
+  //         where: query.where.map((where) => [
+  //           where.left,
+  //           where.sign,
+  //           where.right,
+  //         ]),
+  //         groupby: query.groupby,
+  //         join_conditions: query.joinCondition,
+  //       },
+  //       db_id: dbID,
+  //     };
+  //     if (params.sql.select.length > 0) {
+  //       fetchSQLResult(params)
+  //         .then((rst) => {
+  //           setData(rst.data);
+  //           setQuery({
+  //             select: buildSelectFromResult(rst.sql.select),
+  //             from: rst.sql.from,
+  //             where: buildWhereFromResult(rst.sql.where),
+  //             groupby: rst.sql.groupby,
+  //             joinCondition: rst.sql.join_conditions,
+  //             orderby: [],
+  //           });
+  //           setRecommendations(rst.recommendations);
+  //           setRawQuery(rst.raw_sql);
+  //           setModified(false);
+  //         })
+  //         .catch((e) => {
+  //           setErrorModalVisible(true);
+  //         });
+  //     } else {
+  //       setData([]);
+  //       setModified(false);
+  //     }
+  //   }
+  // }, [modified]);
+
+  // useEffect(() => {
+  //   if (nlQuery) {
+  //     const params = {
+  //       nlQuery: nlQuery,
+  //     };
+  //     // or:
+  //     fetchNlQueryResult(params)
+  //       .then((rst) => {
+  //         setDbID(rst.db_id);
+  //         setData(rst.data);
+  //         setQuery({
+  //           select: buildSelectFromResult(rst.sql.select),
+  //           from: rst.sql.from,
+  //           where: buildWhereFromResult(rst.sql.where),
+  //           groupby: rst.sql.groupby,
+  //           joinCondition: rst.sql.join_conditions,
+  //           orderby: [],
+  //         });
+  //         setRawQuery(rst.raw_sql);
+  //         setRecommendations(rst.recommendations);
+  //       })
+  //       .catch((e) => {
+  //         setErrorModalVisible(true);
+  //       });
+  //   }
+  // }, [nlQuery]);
 
   return (
     <QueryContext.Provider
       value={{
         query,
-        setQuery: (query) => {
-          // query.select.sort((a, b) => (a.agg === "NONE" ? -1 : 1));
-          setQuery({ ...query });
-          setModified(true);
-        },
+        setQuery,
         nlQuery,
         setNlQuery,
         rawQuery,
         setRawQuery,
+        postSQL,
+        getNlQuery,
       }}>
-      <ResultContainer>
-        {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
-        <ResultContext.Provider
-          value={{
-            data,
-            setData,
-            recommendations,
-            setRecommendations,
-          }}>
-          <ResultInterface />
+      <ModalContext.Provider
+        value={{
+          selectModal: {
+            visible: selectModalVisibe,
+            setVisible: setSelectModalVisible,
+          },
+          groupbyModal: {
+            visible: groupbyModalVisibe,
+            setVisible: setGroupbyModalVisible,
+          },
+          conditionModal: {
+            visible: conditionModalVisibe,
+            setVisible: setConditionModalVisible,
+          },
+          errorModal: {
+            visible: errorModalVisible,
+            setVisible: setErrorModalVisible,
+          },
+        }}>
+        <ResultContainer>
+          {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
+          <ResultContext.Provider
+            value={{
+              data,
+              setData,
+              recommendations,
+              setRecommendations,
+            }}>
+            <ResultInterface />
 
-          <SearchInput />
-          {data.length > 0 && <GraphContainer />}
-        </ResultContext.Provider>
-      </ResultContainer>
+            <SearchInput />
+            {data.length > 0 && <GraphContainer />}
+          </ResultContext.Provider>
+        </ResultContainer>
+        <SelectModal />
+        <GroupbyModal />
+        <ConditionModal />
+        <ErrorModal />
+      </ModalContext.Provider>
     </QueryContext.Provider>
   );
 };
