@@ -67,10 +67,17 @@ const Result = (props: ISchemaData) => {
         JSON.stringify(_.groupBy(props.schema, (data) => data.table_name))
       )
     );
-    setRecommendations([
-      ...props.schema.map((c) => `${c.table_name}.${c.column_name}`),
-    ]);
   }, []);
+
+  useEffect(() => {
+    if ((query.from ?? []).length > 0) {
+      setRecommendations([
+        ...props.schema
+          .filter((s) => query.from.includes(s.table_name))
+          .map((c) => `${c.table_name}.${c.column_name}`),
+      ]);
+    }
+  }, [query.from]);
 
   const postSQL = useCallback(
     async (params: IQuery) => {
@@ -94,7 +101,7 @@ const Result = (props: ISchemaData) => {
             joinCondition: rst.sql.join_conditions,
             orderby: [],
           });
-          setRecommendations(rst.recommendations);
+
           setRawQuery(rst.raw_sql);
           setModified(false);
         })
@@ -118,7 +125,6 @@ const Result = (props: ISchemaData) => {
           orderby: [],
         });
         setRawQuery(rst.raw_sql);
-        setRecommendations(rst.recommendations);
       })
       .catch((e) => {
         setErrorModalVisible(true);
