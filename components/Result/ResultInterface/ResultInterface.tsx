@@ -58,6 +58,12 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
       }),
     });
   };
+  const onRemoveCondition = (index: number) => {
+    postSQL({
+      ...query,
+      where: [...query.where.slice(0, index), ...query.where.slice(index + 1)],
+    });
+  };
 
   const onAddSelect = () => {
     selectModal.setVisible(true);
@@ -112,8 +118,9 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           })}
         />
         <Buttons
-          items={query.where.map((w) => `${w.left} ${w.sign} ${w.right}`)}
+          items={query.where.map((w) => `${w.left} ${w.operator} ${w.right}`)}
           name="Conditions"
+          onRemove={onRemoveCondition}
           onAdd={onAddConditon}
           onDragEnd={onDragEnd({
             items: query.where,

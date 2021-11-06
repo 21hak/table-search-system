@@ -1,10 +1,11 @@
 import React from "react";
+import { IWhereOperatorType } from "types";
 
 export type IResultData = Array<{ [column: string]: string | number }>;
 export type IResultSQL = {
   select: Array<["NONE" | "MAX" | "MIN", string]>;
   from: string[];
-  where: Array<[string, "=" | "<=", string]>;
+  where: Array<[string, string, any]>;
   groupby: string[];
   join_conditions: string[];
   orderby: string[];

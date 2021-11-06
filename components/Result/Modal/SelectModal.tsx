@@ -8,7 +8,16 @@ import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
 
 interface ISelectModalProps {}
-const funcRecommendations = ["MAX", "MIN", "UNIQUE"];
+// count, sum, min, max, avg, stddev, array_agg
+const funcRecommendations = [
+  "COUNT",
+  "SUM",
+  "MIN",
+  "MAX",
+  "AVG",
+  "STDDEV",
+  "ARRAY_AGG",
+];
 export const SelectModal: React.FC<ISelectModalProps> = (props) => {
   const { selectModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);

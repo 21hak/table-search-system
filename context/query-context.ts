@@ -1,8 +1,9 @@
 import React from "react";
+import { IWhereOperatorType } from "types";
 
 export type IWhere = {
   left: string;
-  sign: "=" | "<=" | ">=";
+  operator: IWhereOperatorType;
   right: string | number;
 };
 

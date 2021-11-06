@@ -6,24 +6,54 @@ import { Modal } from "./Modal";
 import Autocomplete from "react-autocomplete";
 import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
+import { IWhereOperatorType } from "types";
 
 interface IConditionModalProps {}
-const signRecommendations = ["=", ">=", "<="];
+const signRecommendations = [
+  "=",
+  ">",
+  ">=",
+  "<",
+  "<=",
+  "starts with",
+  "contains",
+  "ends with",
+];
 export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
   const { conditionModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);
   const { query, postSQL } = useContext(QueryContext);
   const [column, setColumn] = useState<string>("");
-  const [sign, setSign] = useState<"=" | "<=" | ">=" | "">("");
+  const [operator, setOperator] = useState<IWhereOperatorType | "">("");
   const [value, setValue] = useState<any>();
 
   const onSubmit = () => {
-    if (sign) {
+    // let o: string = "";
+    // let v = "";
+    if (operator) {
+      // switch (operator) {
+      //   case "starts with":
+      //     o = "LIKE";
+      //     v = `\'${value}%\'`;
+      //     break;
+      //   case "ends with":
+      //     o = "LIKE";
+      //     v = `\'%${value}\'`;
+      //     break;
+      //   case "contains":
+      //     o = "LIKE";
+      //     v = `\'%${value}\'`;
+      //     break;
+      //   default:
+      //     o = operator;
+      //     v = value;
+      // }
+
       const c = query.where.concat([
-        { left: column, sign: sign, right: value },
+        { left: column, operator: operator, right: value },
       ]);
       setColumn("");
-      setSign("");
+      setOperator("");
       setValue("");
       postSQL({ ...query, where: c });
       conditionModal.setVisible(false);
@@ -51,10 +81,10 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
         <div className="pb-1">
           <SearchInput
             className="pb-1"
-            placeholder="sign"
+            placeholder="operator"
             recommendations={signRecommendations}
-            value={sign}
-            onChange={(value) => setSign(value)}
+            value={operator}
+            onChange={(value) => setOperator(value)}
           />
         </div>
         <SearchInput
@@ -135,3 +165,11 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
     );
   }
 );
+
+interface where {
+  column: string;
+  operator: string;
+  value: string;
+  negation: boolean;
+  type: "OR" | "AND";
+}

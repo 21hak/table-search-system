@@ -26,7 +26,11 @@ import { ConditionModal } from "components/Result/Modal/ConditionModal";
 import { ErrorModal } from "components/Result/Modal/ErrorModal";
 import ModalContext from "context/modal-context";
 import { fetchNlQueryResult, fetchSQLResult } from "api";
-import { buildSelectFromResult, buildWhereFromResult } from "utils/helper";
+import {
+  buildSelectFromResult,
+  buildWhereFromResult,
+  buildWherePayload,
+} from "utils/helper";
 
 const Result = (props: ISchemaData) => {
   const router = useRouter();
@@ -71,11 +75,7 @@ const Result = (props: ISchemaData) => {
         sql: {
           select: params.select.map((select) => [select.agg, select.column]),
           from: params.from,
-          where: params.where.map((where) => [
-            where.left,
-            where.sign,
-            where.right,
-          ]),
+          where: buildWherePayload(params.where),
           groupby: params.groupby,
           join_conditions: params.joinCondition,
         },
@@ -96,6 +96,7 @@ const Result = (props: ISchemaData) => {
           setModified(false);
         })
         .catch((e) => {
+          console.log(e);
           setErrorModalVisible(true);
         });
     },
@@ -126,75 +127,6 @@ const Result = (props: ISchemaData) => {
       getNlQuery({ nlQuery: nlQuery });
     }
   }, [nlQuery]);
-
-  // useEffect(() => {
-  //   if (modified) {
-  //     const params = {
-  //       sql: {
-  //         select: query.select.map((select) => [select.agg, select.column]),
-  //         from: query.from,
-  //         where: query.where.map((where) => [
-  //           where.left,
-  //           where.sign,
-  //           where.right,
-  //         ]),
-  //         groupby: query.groupby,
-  //         join_conditions: query.joinCondition,
-  //       },
-  //       db_id: dbID,
-  //     };
-  //     if (params.sql.select.length > 0) {
-  //       fetchSQLResult(params)
-  //         .then((rst) => {
-  //           setData(rst.data);
-  //           setQuery({
-  //             select: buildSelectFromResult(rst.sql.select),
-  //             from: rst.sql.from,
-  //             where: buildWhereFromResult(rst.sql.where),
-  //             groupby: rst.sql.groupby,
-  //             joinCondition: rst.sql.join_conditions,
-  //             orderby: [],
-  //           });
-  //           setRecommendations(rst.recommendations);
-  //           setRawQuery(rst.raw_sql);
-  //           setModified(false);
-  //         })
-  //         .catch((e) => {
-  //           setErrorModalVisible(true);
-  //         });
-  //     } else {
-  //       setData([]);
-  //       setModified(false);
-  //     }
-  //   }
-  // }, [modified]);
-
-  // useEffect(() => {
-  //   if (nlQuery) {
-  //     const params = {
-  //       nlQuery: nlQuery,
-  //     };
-  //     // or:
-  //     fetchNlQueryResult(params)
-  //       .then((rst) => {
-  //         setDbID(rst.db_id);
-  //         setData(rst.data);
-  //         setQuery({
-  //           select: buildSelectFromResult(rst.sql.select),
-  //           from: rst.sql.from,
-  //           where: buildWhereFromResult(rst.sql.where),
-  //           groupby: rst.sql.groupby,
-  //           joinCondition: rst.sql.join_conditions,
-  //           orderby: [],
-  //         });
-  //         setRawQuery(rst.raw_sql);
-  //         setRecommendations(rst.recommendations);
-  //       })
-  //       .catch((e) => {
-  //         setErrorModalVisible(true);
-  //       });
-  //   }
-  // }, [nlQuery]);
 
   return (
     <QueryContext.Provider
