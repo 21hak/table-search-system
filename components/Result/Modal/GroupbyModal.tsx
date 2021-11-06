@@ -1,6 +1,12 @@
 import ModalContext from "context/modal-context";
 import QueryContext from "context/query-context";
-import React, { HTMLProps, useContext, useEffect, useState } from "react";
+import React, {
+  HTMLProps,
+  useContext,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 
 import { Modal } from "./Modal";
 import Autocomplete from "react-autocomplete";
@@ -10,10 +16,16 @@ import ResultContext from "context/result-context";
 interface IGroupbyModalProps {}
 
 export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
+  const groupbyModalRef = useRef(null);
   const { groupbyModal } = useContext(ModalContext);
   const { query, postSQL } = useContext(QueryContext);
   const [groupby, setGroupby] = useState<string>("");
   const { recommendations } = useContext(ResultContext);
+  useEffect(() => {
+    if (groupbyModal.visible && groupbyModalRef.current) {
+      groupbyModalRef.current.focus();
+    }
+  }, [groupbyModal.visible]);
 
   const onSubmit = () => {
     const g = query.groupby.concat([groupby]);
@@ -28,17 +40,21 @@ export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
     groupbyModal.setVisible(false);
   };
 
+  const onClose = () => {
+    setGroupby("");
+    groupbyModal.setVisible(false);
+  };
+
   return (
     <Modal
-      onClose={() => {
-        groupbyModal.setVisible(false);
-      }}
+      onClose={onClose}
       maskClosable={true}
       closable={true}
       visible={groupbyModal.visible}>
       <div className="p-4 shadow">
         <div className="pb-1">
           <SearchInput
+            ref={groupbyModalRef}
             className="pb-1"
             placeholder="groupby"
             recommendations={recommendations}
@@ -58,9 +74,7 @@ export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
           <button
             type="button"
             className="border border-gray-900 p-1 flex-grow"
-            onClick={(e) => {
-              groupbyModal.setVisible(false);
-            }}>
+            onClick={onClose}>
             Cancel
           </button>
         </div>

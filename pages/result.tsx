@@ -67,6 +67,9 @@ const Result = (props: ISchemaData) => {
         JSON.stringify(_.groupBy(props.schema, (data) => data.table_name))
       )
     );
+    setRecommendations([
+      ...props.schema.map((c) => `${c.table_name}.${c.column_name}`),
+    ]);
   }, []);
 
   const postSQL = useCallback(
@@ -96,7 +99,6 @@ const Result = (props: ISchemaData) => {
           setModified(false);
         })
         .catch((e) => {
-          console.log(e);
           setErrorModalVisible(true);
         });
     },
@@ -159,25 +161,26 @@ const Result = (props: ISchemaData) => {
             setVisible: setErrorModalVisible,
           },
         }}>
-        <ResultContainer>
-          {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
-          <ResultContext.Provider
-            value={{
-              data,
-              setData,
-              recommendations,
-              setRecommendations,
-            }}>
+        <ResultContext.Provider
+          value={{
+            data,
+            setData,
+            recommendations,
+            setRecommendations,
+          }}>
+          <ResultContainer>
+            {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
+
             <ResultInterface />
 
             <SearchInput />
             {data.length > 0 && <GraphContainer />}
-          </ResultContext.Provider>
-        </ResultContainer>
-        <SelectModal />
-        <GroupbyModal />
-        <ConditionModal />
-        <ErrorModal />
+          </ResultContainer>
+          <SelectModal />
+          <GroupbyModal />
+          <ConditionModal />
+          <ErrorModal />
+        </ResultContext.Provider>
       </ModalContext.Provider>
     </QueryContext.Provider>
   );

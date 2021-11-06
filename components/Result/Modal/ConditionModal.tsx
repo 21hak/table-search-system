@@ -1,6 +1,12 @@
 import ModalContext from "context/modal-context";
 import QueryContext from "context/query-context";
-import React, { HTMLProps, useContext, useEffect, useState } from "react";
+import React, {
+  HTMLProps,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Modal } from "./Modal";
 import Autocomplete from "react-autocomplete";
@@ -20,6 +26,7 @@ const signRecommendations = [
   "ends with",
 ];
 export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
+  const conditionModalRef = useRef(null);
   const { conditionModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);
   const { query, postSQL } = useContext(QueryContext);
@@ -27,28 +34,14 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
   const [operator, setOperator] = useState<IWhereOperatorType | "">("");
   const [value, setValue] = useState<any>();
 
-  const onSubmit = () => {
-    // let o: string = "";
-    // let v = "";
-    if (operator) {
-      // switch (operator) {
-      //   case "starts with":
-      //     o = "LIKE";
-      //     v = `\'${value}%\'`;
-      //     break;
-      //   case "ends with":
-      //     o = "LIKE";
-      //     v = `\'%${value}\'`;
-      //     break;
-      //   case "contains":
-      //     o = "LIKE";
-      //     v = `\'%${value}\'`;
-      //     break;
-      //   default:
-      //     o = operator;
-      //     v = value;
-      // }
+  useEffect(() => {
+    if (conditionModal.visible && conditionModalRef.current) {
+      conditionModalRef.current.focus();
+    }
+  }, []);
 
+  const onSubmit = () => {
+    if (operator) {
       const c = query.where.concat([
         { left: column, operator: operator, right: value },
       ]);
@@ -59,18 +52,23 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
       conditionModal.setVisible(false);
     }
   };
+  const onClose = () => {
+    setColumn("");
+    setOperator("");
+    setValue("");
+    conditionModal.setVisible(false);
+  };
 
   return (
     <Modal
-      onClose={() => {
-        conditionModal.setVisible(false);
-      }}
+      onClose={onClose}
       maskClosable={true}
       closable={true}
       visible={conditionModal.visible}>
       <div className="p-4 shadow">
         <div className="pb-1">
           <SearchInput
+            ref={conditionModalRef}
             className="pb-1"
             placeholder="column"
             recommendations={recommendations}
@@ -104,9 +102,7 @@ export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
           <button
             type="button"
             className="border border-gray-900 p-1 flex-grow"
-            onClick={(e) => {
-              conditionModal.setVisible(false);
-            }}>
+            onClick={onClose}>
             Cancel
           </button>
         </div>

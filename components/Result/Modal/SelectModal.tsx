@@ -1,11 +1,18 @@
 import ModalContext from "context/modal-context";
 import QueryContext from "context/query-context";
-import React, { HTMLProps, useContext, useEffect, useState } from "react";
+import React, {
+  HTMLProps,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Modal } from "./Modal";
 import Autocomplete from "react-autocomplete";
 import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
+import { SideBarContext } from "components/Layout";
 
 interface ISelectModalProps {}
 // count, sum, min, max, avg, stddev, array_agg
@@ -19,11 +26,18 @@ const funcRecommendations = [
   "ARRAY_AGG",
 ];
 export const SelectModal: React.FC<ISelectModalProps> = (props) => {
+  const selectModalRef = useRef(null);
   const { selectModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);
+  const { schema } = useContext(SideBarContext);
   const { query, postSQL } = useContext(QueryContext);
   const [select, setSelect] = useState<string>("");
   const [func, setFunc] = useState<string>("");
+  useEffect(() => {
+    if (selectModal.visible && selectModalRef.current) {
+      selectModalRef.current.focus();
+    }
+  }, [selectModal.visible]);
 
   const onSubmit = () => {
     const s = query.select.concat([
@@ -38,17 +52,22 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
     selectModal.setVisible(false);
   };
 
+  const onClose = () => {
+    setSelect("");
+    setFunc("");
+    selectModal.setVisible(false);
+  };
+
   return (
     <Modal
-      onClose={() => {
-        selectModal.setVisible(false);
-      }}
+      onClose={onClose}
       maskClosable={true}
       closable={true}
       visible={selectModal.visible}>
       <div className="p-4 shadow">
         <div className="pb-1">
           <SearchInput
+            ref={selectModalRef}
             className="pb-1"
             placeholder="column"
             recommendations={recommendations}
@@ -73,9 +92,7 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
           <button
             type="button"
             className="border border-gray-900 p-1 flex-grow"
-            onClick={(e) => {
-              selectModal.setVisible(false);
-            }}>
+            onClick={onClose}>
             Cancel
           </button>
         </div>
