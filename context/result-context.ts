@@ -23,11 +23,15 @@ interface IResultContext {
   setData: (query: IResultData) => void;
   recommendations: string[];
   setRecommendations: (recommendations: string[]) => void;
+  tableRecommendations: string[];
+  setTableRecommendations: (recommendations: string[]) => void;
 }
 const ResultContext = React.createContext<IResultContext>({
   data: [],
   setData: () => {},
   recommendations: [],
   setRecommendations: () => {},
+  tableRecommendations: [],
+  setTableRecommendations: () => {},
 });
 export default ResultContext;

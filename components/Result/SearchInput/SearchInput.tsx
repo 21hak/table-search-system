@@ -12,6 +12,7 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
   const { recommendations } = useContext(ResultContext);
   const [tempNlQuery, setTempNlQuery] = useState(nlQuery);
   const [tempRawQuery, setTempRawQuery] = useState(rawQuery);
+  const [toggle, setToggle] = useState(false);
   const {
     register,
     handleSubmit,
@@ -19,6 +20,9 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
     setValue,
     formState: { errors },
   } = useForm();
+  const onToggle = () => {
+    setToggle(!toggle);
+  };
 
   useEffect(() => {
     if (nlQuery) {
@@ -34,65 +38,75 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
   }, [rawQuery]);
   return (
     // {/* input */}
-    <div className="flex  w-full">
-      <div className="mr-4 w-full">
-        <QueryArea
-          value={tempNlQuery}
-          placeholder="Natural Language"
-          onChange={(e) => setTempNlQuery(e.target.value)}
-        />
-        <div className="flex justify-end mt-1">
-          <button
-            onClick={() => {
-              router.push(
-                {
-                  pathname: "/result",
-                  query: { nlQuery: tempNlQuery },
-                },
-                undefined,
-                { shallow: true }
-              );
-            }}
-            type="button"
-            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
-            Execute
-          </button>
-          <button
-            onClick={() => {
-              setTempNlQuery("");
-            }}
-            type="button"
-            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
-            Clear
-          </button>
+    <>
+      <div className="flex justify-center mb-2">
+        <button
+          className="pr-4 pl-4 rounded  border border-gray-600"
+          onClick={onToggle}>
+          Toggle
+        </button>
+      </div>
+
+      <div className={"flex w-full " + (toggle ? "hidden" : "")}>
+        <div className="mr-4 w-full">
+          <QueryArea
+            value={tempNlQuery}
+            placeholder="Natural Language"
+            onChange={(e) => setTempNlQuery(e.target.value)}
+          />
+          <div className="flex justify-end mt-1">
+            <button
+              onClick={() => {
+                router.push(
+                  {
+                    pathname: "/result",
+                    query: { nlQuery: tempNlQuery },
+                  },
+                  undefined,
+                  { shallow: true }
+                );
+              }}
+              type="button"
+              className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
+              Execute
+            </button>
+            <button
+              onClick={() => {
+                setTempNlQuery("");
+              }}
+              type="button"
+              className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
+              Clear
+            </button>
+          </div>
+        </div>
+        <div className="w-full">
+          <QueryArea
+            placeholder="Raw Query"
+            value={tempRawQuery}
+            onChange={(e) => setTempRawQuery(e.target.value)}
+          />
+          <div className="flex justify-end mt-1">
+            <button
+              onClick={() => {
+                console.log("Raw query Executed");
+              }}
+              type="button"
+              className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
+              Execute
+            </button>
+            <button
+              onClick={() => {
+                setTempRawQuery("");
+              }}
+              type="button"
+              className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
+              Clear
+            </button>
+          </div>
         </div>
       </div>
-      <div className="w-full">
-        <QueryArea
-          placeholder="Raw Query"
-          value={tempRawQuery}
-          onChange={(e) => setTempRawQuery(e.target.value)}
-        />
-        <div className="flex justify-end mt-1">
-          <button
-            onClick={() => {
-              console.log("Raw query Executed");
-            }}
-            type="button"
-            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400 mr-1">
-            Execute
-          </button>
-          <button
-            onClick={() => {
-              setTempRawQuery("");
-            }}
-            type="button"
-            className="bg-white inline-block p-1 cursor-pointer select-none border border-gray-400">
-            Clear
-          </button>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

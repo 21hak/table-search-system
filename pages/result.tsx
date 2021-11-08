@@ -30,7 +30,9 @@ import {
   buildSelectFromResult,
   buildWhereFromResult,
   buildWherePayload,
+  getTablesFromQuery,
 } from "utils/helper";
+import { TableModal } from "components/Result/Modal/TableModal";
 
 const Result = (props: ISchemaData) => {
   const router = useRouter();
@@ -49,11 +51,15 @@ const Result = (props: ISchemaData) => {
   });
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
+  const [tableRecommendations, setTableRecommendations] = useState<string[]>(
+    []
+  );
   const { setSchema } = useContext(SideBarContext);
   const [selectModalVisibe, setSelectModalVisible] = useState(false);
   const [groupbyModalVisibe, setGroupbyModalVisible] = useState(false);
   const [conditionModalVisibe, setConditionModalVisible] = useState(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [tableModalVisible, setTableModalVisible] = useState(false);
 
   useEffect(() => {
     if (router.query.nlQuery) {
@@ -69,45 +75,71 @@ const Result = (props: ISchemaData) => {
     );
   }, []);
 
+  // TODO: 우선 전체 schema에서 추천
+  // useEffect(() => {
+  //   if ((query.from ?? []).length > 0) {
+  //     setRecommendations([
+  //       ...props.schema
+  //         .filter((s) => query.from.includes(s.table_name))
+  //         .map((c) => `${c.table_name}.${c.column_name}`),
+  //     ]);
+  //   }
+  // }, [query.from]);
   useEffect(() => {
-    if ((query.from ?? []).length > 0) {
-      setRecommendations([
-        ...props.schema
-          .filter((s) => query.from.includes(s.table_name))
-          .map((c) => `${c.table_name}.${c.column_name}`),
-      ]);
-    }
-  }, [query.from]);
+    setRecommendations([
+      ...props.schema.map((c) => `${c.table_name}.${c.column_name}`),
+    ]);
+    setTableRecommendations(_.uniq(props.schema.map((c) => c.table_name)));
+  }, []);
 
   const postSQL = useCallback(
     async (params: IQuery) => {
-      fetchSQLResult({
-        sql: {
-          select: params.select.map((select) => [select.agg, select.column]),
-          from: params.from,
-          where: buildWherePayload(params.where),
-          groupby: params.groupby,
-          join_conditions: params.joinCondition,
-        },
-        db_id: dbID,
-      })
-        .then((rst) => {
-          setData(rst.data);
-          setQuery({
-            select: buildSelectFromResult(rst.sql.select),
-            from: rst.sql.from,
-            where: buildWhereFromResult(rst.sql.where),
-            groupby: rst.sql.groupby,
-            joinCondition: rst.sql.join_conditions,
-            orderby: [],
-          });
-
-          setRawQuery(rst.raw_sql);
-          setModified(false);
+      if (params.select.length > 0 && params.from.length > 0) {
+        fetchSQLResult({
+          sql: {
+            select: params.select.map((select) => [select.agg, select.column]),
+            from: params.from,
+            where: buildWherePayload(params.where),
+            groupby: params.groupby,
+            join_conditions: params.joinCondition,
+          },
+          // FIXME: db id 넣어줘야함
+          // db_id: dbID,
+          db_id: "w3schools_test",
         })
-        .catch((e) => {
-          setErrorModalVisible(true);
+          .then((rst) => {
+            setData(rst.data);
+            setQuery({
+              select: [
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+                ...buildSelectFromResult(rst.sql.select),
+              ],
+              from: rst.sql.from,
+              where: buildWhereFromResult(rst.sql.where),
+              groupby: rst.sql.groupby,
+              joinCondition: rst.sql.join_conditions,
+              orderby: [],
+            });
+
+            setRawQuery(rst.raw_sql);
+            setModified(false);
+          })
+          .catch((e) => {
+            setErrorModalVisible(true);
+          });
+      } else {
+        setQuery({
+          ...params,
         });
+        setData([]);
+      }
     },
     [dbID]
   );
@@ -150,6 +182,10 @@ const Result = (props: ISchemaData) => {
       }}>
       <ModalContext.Provider
         value={{
+          tableModal: {
+            visible: tableModalVisible,
+            setVisible: setTableModalVisible,
+          },
           selectModal: {
             visible: selectModalVisibe,
             setVisible: setSelectModalVisible,
@@ -173,16 +209,17 @@ const Result = (props: ISchemaData) => {
             setData,
             recommendations,
             setRecommendations,
+            tableRecommendations,
+            setTableRecommendations,
           }}>
           <ResultContainer>
             {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
-
             <ResultInterface />
-
             <SearchInput />
             {data.length > 0 && <GraphContainer />}
           </ResultContainer>
           <SelectModal />
+          <TableModal />
           <GroupbyModal />
           <ConditionModal />
           <ErrorModal />

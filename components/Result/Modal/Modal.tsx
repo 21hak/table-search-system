@@ -21,10 +21,16 @@ export const Modal: React.FC<IModalProps> = function Modal({
       onClose(e);
     }
   };
+  const onKeyDown = (e) => {
+    if (e.keyCode === 27) {
+      onClose(e);
+    }
+  };
 
   return (
     <Portal>
       <div
+        onKeyDown={onKeyDown}
         className={
           "fixed top-0 left-0 bottom-0 right-0 z-40 bg-opacity-30 bg-black " +
           (visible ? "" : "hidden")

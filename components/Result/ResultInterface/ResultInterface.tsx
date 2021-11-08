@@ -14,11 +14,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   ...props
 }) => {
   const router = useRouter();
-  const onClear = () => {
-    router.push({ pathname: "/" });
-  };
   const { query, postSQL } = useContext(QueryContext);
-  const { selectModal, groupbyModal, conditionModal } =
+  const { selectModal, groupbyModal, conditionModal, tableModal } =
     useContext(ModalContext);
 
   const onRemoveGroupby = (index: number) => {
@@ -65,6 +62,13 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
     });
   };
 
+  const onRemoveTable = (index: number) => {
+    postSQL({
+      ...query,
+      from: [...query.from.slice(0, index), ...query.from.slice(index + 1)],
+    });
+  };
+
   const onAddSelect = () => {
     selectModal.setVisible(true);
   };
@@ -73,6 +77,10 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   };
   const onAddConditon = () => {
     conditionModal.setVisible(true);
+  };
+
+  const onAddTable = () => {
+    tableModal.setVisible(true);
   };
 
   const reorder = (list, startIndex, endIndex) => {
@@ -101,8 +109,8 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   return (
     <>
       {/* result */}
-      <div className="flex flex-col mb-2">
-        <Buttons items={query.from} name="Tables" />
+      <div className="flex flex-col mb-2 flex-shrink min-h-1/5 overflow-y-auto">
+        <Buttons items={query.from} name="Tables" onAdd={onAddTable} />
         <Buttons
           items={query.select.map(
             (s) => `${s.column} ${s.agg !== "NONE" ? `(${s.agg})` : ""}`
@@ -142,13 +150,6 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
           })}
         />
       </div>
-      <div className="flex justify-center mb-2">
-        <button
-          className="pr-4 pl-4 rounded  border border-gray-600"
-          onClick={onClear}>
-          Clear
-        </button>
-      </div>
     </>
   );
 };
@@ -168,7 +169,7 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
 
   return (
     <div className="flex items-start">
-      <span className="font-normal w-28 block">{props.name}</span>
+      <span className="font-normal min-w-24 block">{props.name}</span>
       <DragDropContext onDragEnd={props.onDragEnd ? props.onDragEnd : () => {}}>
         <Droppable droppableId="droppable" direction="horizontal">
           {(provided, snapshot) => (
@@ -227,18 +228,18 @@ const Buttons: React.FC<IButtonsProps> = (props) => {
                   </Draggable>
                 </div>
               ))}
+              {!!props.onAdd && (
+                <span
+                  className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
+                  onClick={props.onAdd}>
+                  +
+                </span>
+              )}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
-      {!!props.onAdd && (
-        <span
-          className="bg-white border border-gray-400 inline-block p-1 pr-3 pl-3 mr-1 mb-1 cursor-pointer"
-          onClick={props.onAdd}>
-          +
-        </span>
-      )}
     </div>
     // <div className="flex items-start">
     //   <span className="font-normal w-28 block">{props.name}</span>

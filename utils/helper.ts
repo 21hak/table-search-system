@@ -1,4 +1,5 @@
-import { IWhere } from "context/query-context";
+import { IQuery, IWhere } from "context/query-context";
+import _ from "lodash";
 import { IWhereOperatorType } from "types";
 
 export const buildWherePayload = (wheres: Array<IWhere>) => {
@@ -67,4 +68,14 @@ export const buildWhereFromResult = (
       right: v,
     };
   });
+};
+
+export const getTablesFromQuery = (query: IQuery) => {
+  const tables = [
+    ...query.select.map((q) => q.column.split(".")[0]),
+    ...query.groupby.map((g) => g.split(".")[0]),
+    ...query.where.map((w) => w.left.split(".")[0]),
+    ...query.joinCondition.map((j) => j.split("=")[0].split(".")[0]),
+  ].filter((t) => !!t);
+  return _.uniq(tables);
 };
