@@ -1,26 +1,16 @@
-// printed-books/:book-id
-import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-
 import GraphContainer from "../components/Result/ResultGraph/GraphContainer";
-
-import { matchColumn } from "../utils";
 import ResultContainer from "../components/Result/ResultContainer/ResultContainer";
-import QueryContext, { IQuery, ISelect } from "../context/query-context";
+import QueryContext, { IQuery } from "../context/query-context";
 import ResultInterface from "../components/Result/ResultInterface/ResultInterface";
-import ResultContext, {
-  INlQueryResult,
-  IResultData,
-} from "../context/result-context";
+import ResultContext, { IResultData } from "../context/result-context";
 import SearchInput from "../components/Result/SearchInput/SearchInput";
 import { SelectModal } from "../components/Result/Modal/SelectModal";
-import { autoAction } from "mobx/dist/internal";
-import { GetServerSideProps, GetStaticProps } from "next";
+import { GetStaticProps } from "next";
 import { ISchemaData } from "pages";
 import { SideBarContext } from "components/Layout";
 import _ from "lodash";
-import qs from "querystring";
 import { GroupbyModal } from "components/Result/Modal/GroupbyModal";
 import { ConditionModal } from "components/Result/Modal/ConditionModal";
 import { ErrorModal } from "components/Result/Modal/ErrorModal";
@@ -30,16 +20,17 @@ import {
   buildSelectFromResult,
   buildWhereFromResult,
   buildWherePayload,
-  getTablesFromQuery,
 } from "utils/helper";
 import { TableModal } from "components/Result/Modal/TableModal";
 
+/**
+ * 검색 결과 페이지
+ */
 const Result = (props: ISchemaData) => {
   const router = useRouter();
   const [nlQuery, setNlQuery] = useState("");
   const [rawQuery, setRawQuery] = useState("");
   const [data, setData] = useState<IResultData>([]);
-  const [modified, setModified] = useState(false);
   const [dbID, setDbID] = useState("");
   const [query, setQuery] = useState<IQuery>({
     select: [],
@@ -92,6 +83,9 @@ const Result = (props: ISchemaData) => {
     setTableRecommendations(_.uniq(props.schema.map((c) => c.table_name)));
   }, []);
 
+  /**
+   * 서버에 query를 요청 하여 결과를 상태값으로 관리
+   */
   const postSQL = useCallback(
     async (params: IQuery) => {
       if (params.select.length > 0 && params.from.length > 0) {
@@ -110,17 +104,7 @@ const Result = (props: ISchemaData) => {
           .then((rst) => {
             setData(rst.data);
             setQuery({
-              select: [
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-                ...buildSelectFromResult(rst.sql.select),
-              ],
+              select: [...buildSelectFromResult(rst.sql.select)],
               from: rst.sql.from,
               where: buildWhereFromResult(rst.sql.where),
               groupby: rst.sql.groupby,
@@ -129,7 +113,6 @@ const Result = (props: ISchemaData) => {
             });
 
             setRawQuery(rst.raw_sql);
-            setModified(false);
           })
           .catch((e) => {
             setErrorModalVisible(true);
@@ -143,6 +126,11 @@ const Result = (props: ISchemaData) => {
     },
     [dbID]
   );
+
+  /**
+   * 서버에 자연언어를 질의하고 결과를 상태값으로 관리
+   * @param params 자연언어 질의
+   */
   const getNlQuery = async (params: { nlQuery: string }) => {
     fetchNlQueryResult(params)
       .then((rst) => {
@@ -162,6 +150,7 @@ const Result = (props: ISchemaData) => {
         setErrorModalVisible(true);
       });
   };
+
   useEffect(() => {
     if (nlQuery) {
       getNlQuery({ nlQuery: nlQuery });
@@ -213,7 +202,6 @@ const Result = (props: ISchemaData) => {
             setTableRecommendations,
           }}>
           <ResultContainer>
-            {/* <ResultChart data={dummyData.plain} sql={SQL} setData={setData} /> */}
             <ResultInterface />
             <SearchInput />
             {data.length > 0 && <GraphContainer />}

@@ -1,7 +1,12 @@
-import { IQuery, IWhere } from "context/query-context";
+import { IQuery, ISelect, IWhere } from "context/query-context";
 import _ from "lodash";
 import { IWhereOperatorType } from "types";
 
+/**
+ *
+ * @param wheres IWhere 구조의 조건절
+ * @returns 서버에 보낼 Where 조건절
+ */
 export const buildWherePayload = (wheres: Array<IWhere>) => {
   return wheres.map((where) => {
     const column = where.left;
@@ -31,6 +36,11 @@ export const buildWherePayload = (wheres: Array<IWhere>) => {
   });
 };
 
+/**
+ *
+ * @param selects 서버에서 반환하는 column, aggregation 데이터
+ * @returns 상태값 관리에 사용될 column, aggregation 데이터
+ */
 export const buildSelectFromResult = (
   selects: Array<["NONE" | "MAX" | "MIN", string]>
 ): ISelect[] => {
@@ -39,6 +49,12 @@ export const buildSelectFromResult = (
     agg: select[0],
   }));
 };
+
+/**
+ *
+ * @param wheres 서버에서 반환하는 where 조건절 데이터
+ * @returns 상태값 관리에 사용될 where 조건절 데이터
+ */
 export const buildWhereFromResult = (
   wheres: Array<[string, string, any]>
 ): Array<IWhere> => {
@@ -70,6 +86,11 @@ export const buildWhereFromResult = (
   });
 };
 
+/**
+ *
+ * @param query
+ * @returns 쿼리에 사용된 모든 테이블을 반환
+ */
 export const getTablesFromQuery = (query: IQuery) => {
   const tables = [
     ...query.select.map((q) => q.column.split(".")[0]),

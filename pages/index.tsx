@@ -10,20 +10,20 @@ export interface ISchemaData {
   schema: { table_name: string; column_name: string }[];
 }
 
+/**
+ * pseudo faqs
+ */
 const faqs = [
   "Average sale by region",
   "Total Quantity by Product Name",
   "Any recommendations",
 ];
 
+/**
+ * Root 페이지. 자연언어로 질의
+ */
 const Home = (props: ISchemaData) => {
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const router = useRouter();
   const { setSchema } = useContext(SideBarContext);
 

@@ -4,7 +4,9 @@ import React from "react";
 import { ISchemaData } from "../../pages";
 
 interface ISideBarContext {
-  schema: { [tableName: string]: { table_name: string; column_name: string }[] };
+  schema: {
+    [tableName: string]: { table_name: string; column_name: string }[];
+  };
   setSchema: React.Dispatch<
     React.SetStateAction<{
       [tableName: string]: { table_name: string; column_name: string }[];

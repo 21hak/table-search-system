@@ -29,7 +29,6 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
   const selectModalRef = useRef(null);
   const { selectModal } = useContext(ModalContext);
   const { recommendations } = useContext(ResultContext);
-  const { schema } = useContext(SideBarContext);
   const { query, postSQL } = useContext(QueryContext);
   const [select, setSelect] = useState<string>("");
   const [func, setFunc] = useState<string>("");

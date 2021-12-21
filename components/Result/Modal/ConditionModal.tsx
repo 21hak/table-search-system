@@ -25,6 +25,10 @@ const signRecommendations = [
   "contains",
   "ends with",
 ];
+
+/**
+ * Where 조건 추가 모달
+ */
 export const ConditionModal: React.FC<IConditionModalProps> = (props) => {
   const conditionModalRef = useRef(null);
   const { conditionModal } = useContext(ModalContext);
@@ -117,6 +121,9 @@ interface ISearchInputProps extends HTMLProps<HTMLInputElement> {
   onChange: (value: any) => void;
 }
 
+/**
+ * 검색 시 recommendations를 이용하여 자동완성
+ */
 const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
   ({ children, recommendations, onChange, value, ...props }, ref) => {
     return (
@@ -131,15 +138,12 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
             className: "focus:outline-none p-1 w-full",
           }}
           wrapperStyle={{
-            // position: "relative",
             display: "inline-block",
             flexGrow: 1,
-            // zIndex: 1,
           }}
           items={recommendations}
           getItemValue={(item: any) => item}
           shouldItemRender={matchColumn}
-          // sortItems={sortStates}
           onChange={(event, value) => onChange(value)}
           onSelect={onChange}
           renderMenu={(children) => (
@@ -161,11 +165,3 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
     );
   }
 );
-
-interface where {
-  column: string;
-  operator: string;
-  value: string;
-  negation: boolean;
-  type: "OR" | "AND";
-}

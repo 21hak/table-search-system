@@ -184,7 +184,6 @@ const UtilButtons: React.FC<IUtilButtonsProps> = function UtilButtons(props) {
         return "ASC";
       }
     });
-    // setSortTabVisible((sortTabVisible) => !sortTabVisible);
   };
 
   useEffect(() => {

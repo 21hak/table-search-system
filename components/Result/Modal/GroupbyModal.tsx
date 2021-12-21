@@ -15,6 +15,9 @@ import ResultContext from "context/result-context";
 
 interface IGroupbyModalProps {}
 
+/**
+ * Groupby 조건 추가 모달
+ */
 export const GroupbyModal: React.FC<IGroupbyModalProps> = (props) => {
   const groupbyModalRef = useRef(null);
   const { groupbyModal } = useContext(ModalContext);
@@ -103,15 +106,12 @@ const SearchInput: React.FC<ISearchInputProps> = React.forwardRef(
             className: "focus:outline-none p-1 w-full",
           }}
           wrapperStyle={{
-            // position: "relative",
             display: "inline-block",
             flexGrow: 1,
-            // zIndex: 1,
           }}
           items={recommendations}
           getItemValue={(item: any) => item}
           shouldItemRender={matchColumn}
-          // sortItems={sortStates}
           onChange={(event, value) => onChange(value)}
           onSelect={onChange}
           renderMenu={(children) => (

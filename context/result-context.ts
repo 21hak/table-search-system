@@ -1,5 +1,4 @@
 import React from "react";
-import { IWhereOperatorType } from "types";
 
 export type IResultData = Array<{ [column: string]: string | number }>;
 export type IResultSQL = {
@@ -26,6 +25,10 @@ interface IResultContext {
   tableRecommendations: string[];
   setTableRecommendations: (recommendations: string[]) => void;
 }
+
+/**
+ * Context for controll queried data
+ */
 const ResultContext = React.createContext<IResultContext>({
   data: [],
   setData: () => {},

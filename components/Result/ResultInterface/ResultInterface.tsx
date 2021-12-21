@@ -1,19 +1,13 @@
 import ModalContext from "context/modal-context";
-import StoreContext from "context/store-context";
-import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
-import QueryContext, { ISelect, IWhere } from "../../../context/query-context";
-
+import { useContext, useState } from "react";
+import QueryContext from "../../../context/query-context";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import closePath from "@/public/close.png";
-import { ErrorModal } from "../Modal/ErrorModal";
 
 interface IResultInterfaceProps {}
 const ResultInterface: React.FC<IResultInterfaceProps> = ({
   children,
   ...props
 }) => {
-  const router = useRouter();
   const { query, postSQL } = useContext(QueryContext);
   const { selectModal, groupbyModal, conditionModal, tableModal } =
     useContext(ModalContext);
@@ -109,7 +103,7 @@ const ResultInterface: React.FC<IResultInterfaceProps> = ({
   return (
     <>
       {/* result */}
-      <div className="flex flex-col mb-2 flex-shrink min-h-1/5 overflow-y-auto">
+      <div className="flex flex-col mb-2 flex-shrink max-h-1/4 min-h-1/4 overflow-y-auto">
         <Buttons items={query.from} name="Tables" onAdd={onAddTable} />
         <Buttons
           items={query.select.map(

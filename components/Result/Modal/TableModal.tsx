@@ -12,7 +12,6 @@ import { Modal } from "./Modal";
 import Autocomplete from "react-autocomplete";
 import { matchColumn } from "utils";
 import ResultContext from "context/result-context";
-import { SideBarContext } from "components/Layout";
 
 interface ITableModalProps {}
 // count, sum, min, max, avg, stddev, array_agg
@@ -21,7 +20,6 @@ export const TableModal: React.FC<ITableModalProps> = (props) => {
   const tableModalRef = useRef(null);
   const { tableModal } = useContext(ModalContext);
   const { tableRecommendations } = useContext(ResultContext);
-  const { schema } = useContext(SideBarContext);
   const { query, postSQL } = useContext(QueryContext);
   const [table, setTable] = useState<string>("");
   useEffect(() => {

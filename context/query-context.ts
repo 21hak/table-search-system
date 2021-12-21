@@ -29,8 +29,10 @@ interface IQueryContext {
   setRawQuery: (rawQuery: string) => void;
   postSQL: (params: IQuery) => Promise<void>;
   getNlQuery: (params: any) => void;
-  // modified: boolean;
-  // setModified: (modified: boolean) => void;
 }
+
+/**
+ * Context for control Queries
+ */
 const QueryContext = React.createContext<IQueryContext>({} as IQueryContext);
 export default QueryContext;
