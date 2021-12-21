@@ -1,0 +1,13 @@
+{
+  "schema": [
+    { "table_name": "suppliers", "column_name": "supplier_id" },
+    { "table_name": "suppliers", "column_name": "supplier_name" },
+    { "table_name": "suppliers", "column_name": "contact_name" },
+    { "table_name": "suppliers", "column_name": "address" },
+    { "table_name": "suppliers", "column_name": "city" },
+    { "table_name": "suppliers", "column_name": "postal_code" },
+    { "table_name": "suppliers", "column_name": "country" },
+    { "table_name": "suppliers", "column_name": "phone" },
+    { "table_name": "suppliers", "column_name": "category_name" }
+  ]
+}

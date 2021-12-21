@@ -18,7 +18,6 @@ export type IQuery = {
   where: Array<IWhere>;
   groupby: string[];
   joinCondition: string[];
-  orderby: string[];
 };
 interface IQueryContext {
   query: IQuery;

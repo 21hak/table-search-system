@@ -1,6 +1,6 @@
-import { IResultData } from "../../../pages/result";
 import { useTable } from "react-table";
 import React from "react";
+import { IResultData } from "context/result-context";
 
 interface IResultTableProps {
   data: IResultData;
@@ -31,10 +31,11 @@ const ResultTable: React.FC<IResultTableProps> = function ResultTable(props) {
       //  style={{ border: "solid 1px blue" }}
     >
       <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
+        {headerGroups.map((headerGroup, index) => (
+          <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+            {headerGroup.headers.map((column, index2) => (
               <th
+                key={index}
                 {...column.getHeaderProps()}
                 style={{
                   textAlign: "start",
@@ -50,13 +51,14 @@ const ResultTable: React.FC<IResultTableProps> = function ResultTable(props) {
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
+        {rows.map((row, i) => {
           prepareRow(row);
           return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell, index) => {
+            <tr {...row.getRowProps()} key={i}>
+              {row.cells.map((cell, i2) => {
                 return (
                   <td
+                    key={i2}
                     {...cell.getCellProps()}
                     // rowSpan={cell.column.Header === "test" ? 7 : undefined}
                     style={{

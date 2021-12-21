@@ -22,7 +22,7 @@ import {
   buildWherePayload,
 } from "utils/helper";
 import { TableModal } from "components/Result/Modal/TableModal";
-
+import schemaData from "../test/schema.json";
 /**
  * 검색 결과 페이지
  */
@@ -38,7 +38,6 @@ const Result = (props: ISchemaData) => {
     where: [],
     groupby: [],
     joinCondition: [],
-    orderby: [],
   });
 
   const [recommendations, setRecommendations] = useState<string[]>([]);
@@ -109,7 +108,6 @@ const Result = (props: ISchemaData) => {
               where: buildWhereFromResult(rst.sql.where),
               groupby: rst.sql.groupby,
               joinCondition: rst.sql.join_conditions,
-              orderby: [],
             });
 
             setRawQuery(rst.raw_sql);
@@ -142,7 +140,6 @@ const Result = (props: ISchemaData) => {
           where: buildWhereFromResult(rst.sql.where),
           groupby: rst.sql.groupby,
           joinCondition: rst.sql.join_conditions,
-          orderby: [],
         });
         setRawQuery(rst.raw_sql);
       })
@@ -217,17 +214,26 @@ const Result = (props: ISchemaData) => {
   );
 };
 export const getStaticProps: GetStaticProps = async () => {
-  const data: ISchemaData = await fetch("http://localhost:40010/").then(
-    function (response) {
-      return response.json();
-    }
-  );
+  const env = process.env.NODE_ENV;
+  if (env == "development") {
+    return {
+      props: {
+        ...schemaData,
+      },
+    };
+  } else {
+    const data: ISchemaData = await fetch("http://localhost:40010/").then(
+      function (response) {
+        return response.json();
+      }
+    );
 
-  return {
-    props: {
-      schema: data.schema,
-    },
-  };
+    return {
+      props: {
+        schema: data.schema,
+      },
+    };
+  }
 };
 
 export default Result;

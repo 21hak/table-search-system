@@ -7,7 +7,6 @@ export type IResultSQL = {
   where: Array<[string, string, any]>;
   groupby: string[];
   join_conditions: string[];
-  orderby: string[];
 };
 
 export type INlQueryResult = {

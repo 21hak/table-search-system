@@ -1,0 +1,42 @@
+{
+  "sql": {
+    "select": [
+      ["NONE", "customers.country"],
+      ["MAX", "products.price"]
+    ],
+    "from": ["customers", "products", "orders", "order_details"],
+    "where": [],
+    "groupby": ["customers.country"],
+    "join_conditions": [
+      "customers.customer_id=orders.customer_id",
+      "orders.order_id=order_details.order_id",
+      "order_details.product_id=products.product_id"
+    ]
+  },
+  "data": [
+    { "country": "Argentina", "max": 23.25 },
+    { "country": "Austria", "max": 263.5 },
+    { "country": "Belgium", "max": 81 },
+    { "country": "Brazil", "max": 263.5 },
+    { "country": "Canada", "max": 263.5 },
+    { "country": "Denmark", "max": 263.5 },
+    { "country": "Finland", "max": 46 },
+    { "country": "France", "max": 263.5 },
+    { "country": "Germany", "max": 55 },
+    { "country": "Ireland", "max": 55 },
+    { "country": "Italy", "max": 55 },
+    { "country": "Mexico", "max": 123.79 },
+    { "country": "Norway", "max": 55 },
+    { "country": "Poland", "max": 13.25 },
+    { "country": "Portugal", "max": 55 },
+    { "country": "Spain", "max": 38 },
+    { "country": "Sweden", "max": 81 },
+    { "country": "Switzerland", "max": 55 },
+    { "country": "UK", "max": 123.79 },
+    { "country": "USA", "max": 263.5 },
+    { "country": "Venezuela", "max": 123.79 }
+  ],
+  "db_id": "w3schools_test",
+  "recommendations": [],
+  "raw_sql": "SELECT customers.country, MAX(products.price) FROM customers, products, orders, order_details WHERE customers.customer_id=orders.customer_id AND orders.order_id=order_details.order_id AND order_details.product_id=products.product_id GROUP BY customers.country ORDER BY customers.country"
+}

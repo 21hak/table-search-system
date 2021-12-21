@@ -52,7 +52,10 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
           <QueryArea
             value={tempNlQuery}
             placeholder="Natural Language"
-            onChange={(e) => setTempNlQuery(e.target.value)}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              setTempNlQuery(target.value);
+            }}
           />
           <div className="flex justify-end mt-1">
             <button
@@ -84,7 +87,10 @@ const SearchInput: React.FC<ISearchInputProps> = ({ children, ...props }) => {
           <QueryArea
             placeholder="Raw Query"
             value={tempRawQuery}
-            onChange={(e) => setTempRawQuery(e.target.value)}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              setTempRawQuery(target.value);
+            }}
           />
           <div className="flex justify-end mt-1">
             <button

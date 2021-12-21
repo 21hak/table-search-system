@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { GetStaticProps } from "next";
 import { SideBarContext } from "../components/Layout";
 import _ from "lodash";
-import axios from "axios";
+import schemaData from "../test/schema.json";
 
 export interface ISchemaData {
   schema: { table_name: string; column_name: string }[];
@@ -74,17 +74,26 @@ const Home = (props: ISchemaData) => {
 };
 
 export const getStaticProps: GetStaticProps = async () => {
-  const data: ISchemaData = await fetch("http://localhost:40010/").then(
-    function (response) {
-      return response.json();
-    }
-  );
+  const env = process.env.NODE_ENV;
+  if (env == "development") {
+    return {
+      props: {
+        ...schemaData,
+      },
+    };
+  } else {
+    const data: ISchemaData = await fetch("http://localhost:40010/").then(
+      function (response) {
+        return response.json();
+      }
+    );
 
-  return {
-    props: {
-      schema: data.schema,
-    },
-  };
+    return {
+      props: {
+        schema: data.schema,
+      },
+    };
+  }
 };
 
 export default Home;

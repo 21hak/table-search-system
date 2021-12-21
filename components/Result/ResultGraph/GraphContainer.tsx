@@ -78,11 +78,10 @@ const GraphContainer: React.FC<IGraphContainerProps> = function GraphContainer(
         {activated === "table" ? (
           <ResultTable data={data} />
         ) : activated === "bar" ? (
-          <ResultBar data={data} sql={query} label={label} values={values} />
+          <ResultBar data={data} label={label} values={values} />
         ) : (
           <ResultPie
             data={data}
-            sql={query}
             label={label}
             value={values[0] ? values[0] : ""}
           />

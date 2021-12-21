@@ -1,0 +1,49 @@
+{
+  "sql": {
+    "select": [
+      ["NONE", "customers.country"],
+      ["MAX", "products.price"],
+      ["MIN", "products.price"]
+    ],
+    "from": ["customers", "products", "orders", "order_details"],
+    "join_conditions": [
+      "customers.customer_id=orders.customer_id",
+      "orders.order_id=order_details.order_id",
+      "order_details.product_id=products.product_id"
+    ],
+    "where": [],
+    "groupby": ["customers.country"]
+  },
+  "data": [
+    { "country": "Argentina", "max": 23.25, "min": 10 },
+    { "country": "Austria", "max": 263.5, "min": 2.5 },
+    { "country": "Belgium", "max": 81, "min": 2.5 },
+    { "country": "Brazil", "max": 263.5, "min": 2.5 },
+    { "country": "Canada", "max": 263.5, "min": 2.5 },
+    { "country": "Denmark", "max": 263.5, "min": 2.5 },
+    { "country": "Finland", "max": 46, "min": 9.2 },
+    { "country": "France", "max": 263.5, "min": 4.5 },
+    { "country": "Germany", "max": 55, "min": 2.5 },
+    { "country": "Ireland", "max": 55, "min": 12.5 },
+    { "country": "Italy", "max": 55, "min": 4.5 },
+    { "country": "Mexico", "max": 123.79, "min": 4.5 },
+    { "country": "Norway", "max": 55, "min": 4.5 },
+    { "country": "Poland", "max": 13.25, "min": 12.5 },
+    { "country": "Portugal", "max": 55, "min": 4.5 },
+    { "country": "Spain", "max": 38, "min": 4.5 },
+    { "country": "Sweden", "max": 81, "min": 4.5 },
+    { "country": "Switzerland", "max": 55, "min": 4.5 },
+    { "country": "UK", "max": 123.79, "min": 4.5 },
+    { "country": "USA", "max": 263.5, "min": 2.5 },
+    { "country": "Venezuela", "max": 123.79, "min": 9.2 }
+  ],
+  "db_id": "w3schools_test",
+  "recommendations": [
+    "customers.country",
+    "customers.customer_id",
+    "customers.contact_name",
+    "customers.address",
+    "customers.city"
+  ],
+  "raw_sql": "SELECT customers.country, MAX(products.price), MIN(products.price) FROM customers, products, orders, order_details WHERE customers.customer_id=orders.customer_id AND orders.order_id=order_details.order_id AND order_details.product_id=products.product_id GROUP BY customers.country ORDER BY customers.country"
+}

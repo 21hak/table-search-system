@@ -42,7 +42,7 @@ export const SelectModal: React.FC<ISelectModalProps> = (props) => {
     const s = query.select.concat([
       {
         column: select,
-        agg: func ? func.toUpperCase() : "NONE",
+        agg: func ? (func.toUpperCase() as any) : "NONE",
       },
     ]);
     setSelect("");
